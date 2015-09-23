@@ -10,12 +10,12 @@ namespace MonoGameTopDownShooter
     {
         public Body Body { get; private set; }
 
-        public Hero(World world)
+        public Hero(World world, Vector2 position)
         {
             if (world == null)
                 throw new ArgumentNullException("world");
 
-            Body = new Body(world, Vector2.Zero, 0, BodyType.Dynamic);
+            Body = new Body(world, position, 0, BodyType.Dynamic);
             FixtureFactory.AttachCircle(10, 1, Body);
 
             Body.LinearVelocity = new Vector2(1000, 0);

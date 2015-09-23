@@ -1,7 +1,10 @@
-﻿using FarseerPhysics.Dynamics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TiledSharp;
 
 namespace MonoGameTopDownShooter
 {
@@ -9,9 +12,10 @@ namespace MonoGameTopDownShooter
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private IDrawable _heroView;
-        private IUpdateable _hero;
         private World _world;
+
+        private readonly List<IDrawable> _drawables = new List<IDrawable>();
+        private readonly List<IUpdateable> _updateables = new List<IUpdateable>();
 
         public Game1()
         {
@@ -28,16 +32,26 @@ namespace MonoGameTopDownShooter
 
         protected override void LoadContent()
         {
+            //Trace.WriteLine(Content.RootDirectory);
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _world = new World(Vector2.Zero);
-            var hero = new Hero(_world);
-            _hero = hero;
 
             var texture = new Texture2D(GraphicsDevice, 10, 10);
             texture.SetData(new[] { Color.Black });
-            _heroView = new HeroView(hero, texture);
+
+            var map = new TmxMap(Content.RootDirectory + "\\map.tmx");
+            foreach (var tmxObjectGroup in map.ObjectGroups)
+            {
+                foreach (var tmxObject in tmxObjectGroup.Objects)
+                {
+                    var hero = new Hero(_world, new Vector2((float) tmxObject.X, (float) tmxObject.Y));
+                    var heroView = new HeroView(hero, texture);
+                    _updateables.Add(hero);
+                    _drawables.Add(heroView);
+                }
+            }
         }
 
         protected override void UnloadContent()
@@ -51,7 +65,9 @@ namespace MonoGameTopDownShooter
                 Exit();
 
             _world.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
-            _hero.Update(gameTime);
+
+            foreach (var updatable in _updateables)
+                updatable.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -61,7 +77,8 @@ namespace MonoGameTopDownShooter
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            _heroView.Draw(_spriteBatch, gameTime);
+            foreach (var drawable in _drawables)
+                drawable.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
 
             base.Draw(gameTime);
