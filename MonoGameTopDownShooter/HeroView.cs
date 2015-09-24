@@ -22,7 +22,7 @@ namespace MonoGameTopDownShooter
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             //spriteBatch.Draw(_texture, new Rectangle((_hero.Body.Position + _offset).ToPoint(), _size), Color.Black);
-            spriteBatch.Draw(_texture, _hero.Body.Position, null, Color.Chocolate, 0f, Vector2.Zero, new Vector2(80f, 30f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(_texture, _hero.State.Gist.Position, null, Color.Chocolate, 0f, Vector2.Zero, new Vector2(80f, 30f), SpriteEffects.None, 0f);
         }
     }
 }

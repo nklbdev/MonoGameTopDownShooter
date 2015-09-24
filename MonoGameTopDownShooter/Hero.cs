@@ -1,35 +1,18 @@
-﻿using System;
-using FarseerPhysics.Dynamics;
-using FarseerPhysics.Dynamics.Contacts;
-using FarseerPhysics.Factories;
-using Microsoft.Xna.Framework;
+﻿using MonoGameTopDownShooter.HeroStates;
+using MonoGameTopDownShooter.HeroStates.Character;
 
 namespace MonoGameTopDownShooter
 {
-    public class Hero : IUpdateable
+    public class Hero : Stateful<ICharacter>, IUpdateable
     {
-        public Body Body { get; private set; }
-
-        public Hero(World world, Vector2 position)
+        public Hero()
         {
-            if (world == null)
-                throw new ArgumentNullException("world");
-
-            Body = new Body(world, position, 0, BodyType.Dynamic);
-            FixtureFactory.AttachCircle(10, 1, Body);
-
-            Body.LinearVelocity = new Vector2(1000, 0);
-            Body.OnCollision += BodyOnOnCollision;
         }
 
-        private bool BodyOnOnCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        public void Update(float elapsedSeconds)
         {
-            //fixtureA.
-            throw new NotImplementedException();
-        }
-
-        public void Update(GameTime gameTime)
-        {
+            while (elapsedSeconds > 0)
+                elapsedSeconds -= State.Update(elapsedSeconds);
         }
     }
 }

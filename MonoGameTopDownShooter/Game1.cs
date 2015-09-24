@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Linq;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,13 +13,15 @@ namespace MonoGameTopDownShooter
         private SpriteBatch _spriteBatch;
         private World _world;
 
-        private readonly List<IDrawable> _drawables = new List<IDrawable>();
-        private readonly List<IUpdateable> _updateables = new List<IUpdateable>();
+        private readonly IDispatcher<IUpdateable> _updateableDispatcher;
+        private readonly IDispatcher<IDrawable> _drawableDispatcher;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            _updateableDispatcher = new UpdateableDispatcher();
+            _drawableDispatcher = new DrawableDispatcher();
         }
 
         protected override void Initialize()
@@ -41,16 +42,13 @@ namespace MonoGameTopDownShooter
             var texture = new Texture2D(GraphicsDevice, 10, 10);
             texture.SetData(new[] { Color.Black });
 
+            var heroFactory = new HeroFactory(_world, texture, _updateableDispatcher, _drawableDispatcher);
+
             var map = new TmxMap(Content.RootDirectory + "\\map.tmx");
-            foreach (var tmxObjectGroup in map.ObjectGroups)
+            foreach (var tmxObject in map.ObjectGroups.SelectMany(tmxObjectGroup => tmxObjectGroup.Objects))
             {
-                foreach (var tmxObject in tmxObjectGroup.Objects)
-                {
-                    var hero = new Hero(_world, new Vector2((float) tmxObject.X, (float) tmxObject.Y));
-                    var heroView = new HeroView(hero, texture);
-                    _updateables.Add(hero);
-                    _drawables.Add(heroView);
-                }
+                var hero = heroFactory.Create();
+                hero.State.Gist.Position = new Vector2((float) tmxObject.X, (float) tmxObject.Y);
             }
         }
 
@@ -64,10 +62,11 @@ namespace MonoGameTopDownShooter
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _world.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
+            var elapsedSeconds = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _world.Step(elapsedSeconds);
 
-            foreach (var updatable in _updateables)
-                updatable.Update(gameTime);
+            foreach (var updatable in _updateableDispatcher.Items)
+                updatable.Update(elapsedSeconds);
 
             base.Update(gameTime);
         }
@@ -77,7 +76,7 @@ namespace MonoGameTopDownShooter
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            foreach (var drawable in _drawables)
+            foreach (var drawable in _drawableDispatcher.Items)
                 drawable.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
 

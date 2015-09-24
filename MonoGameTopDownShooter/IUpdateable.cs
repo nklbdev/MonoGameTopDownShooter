@@ -1,9 +1,7 @@
-using Microsoft.Xna.Framework;
-
 namespace MonoGameTopDownShooter
 {
     public interface IUpdateable
     {
-        void Update(GameTime gameTime);
+        void Update(float elapsedSeconds);
     }
 }
