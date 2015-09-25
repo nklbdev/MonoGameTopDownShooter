@@ -49,8 +49,12 @@ namespace MonoGameTopDownShooter
             {
                 var hero = heroFactory.Create();
                 hero.State.Gist.Position = new Vector2((float) tmxObject.X, (float) tmxObject.Y);
+                if (_hero == null)
+                    _hero = hero;
             }
         }
+
+        private Hero _hero;
 
         protected override void UnloadContent()
         {
@@ -61,6 +65,12 @@ namespace MonoGameTopDownShooter
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+                _hero.State.Gist.Move(0);
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+                _hero.State.Gist.Die();
 
             var elapsedSeconds = (float) gameTime.ElapsedGameTime.TotalSeconds;
             _world.Step(elapsedSeconds);

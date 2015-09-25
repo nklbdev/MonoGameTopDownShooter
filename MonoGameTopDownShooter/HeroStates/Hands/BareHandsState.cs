@@ -16,9 +16,9 @@ namespace MonoGameTopDownShooter.HeroStates.Hands
 
         public override IHands Gist { get { return this; } }
 
-        public override void Bring()
+        public override void Bring(Stateful<IHands> owner)
         {
-            base.Bring();
+            base.Bring(owner);
             throw new NotImplementedException();
         }
 

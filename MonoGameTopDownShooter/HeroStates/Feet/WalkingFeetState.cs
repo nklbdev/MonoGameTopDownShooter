@@ -1,12 +1,22 @@
 ﻿using System;
+using FarseerPhysics.Dynamics;
+using Microsoft.Xna.Framework;
 
 namespace MonoGameTopDownShooter.HeroStates.Feet
 {
     public class WalkingFeetState : State<IFeet>, IFeet
     {
+        private readonly Body _body;
+        private bool _continue;
+
+        public WalkingFeetState(Body body)
+        {
+            _body = body;
+        }
+
         public void Move(float yaw)
         {
-            throw new NotImplementedException();
+            _continue = true;
         }
 
         public void TurnTo(float rotation)
@@ -14,43 +24,40 @@ namespace MonoGameTopDownShooter.HeroStates.Feet
             throw new NotImplementedException();
         }
 
-        public void Crouch()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Run()
         {
-            throw new NotImplementedException();
+            Owner.State = new RunningFeetState(_body);
         }
 
         public void Walk()
         {
-            throw new NotImplementedException();
-        }
-
-        public void Stop()
-        {
-            throw new NotImplementedException();
+            //do nothing
         }
 
         public override IFeet Gist { get { return this; } }
 
-        public override void Bring()
+        public override void Bring(Stateful<IFeet> owner)
         {
-            base.Bring();
-            throw new NotImplementedException();
+            base.Bring(owner);
+            //_body = O
+            //throw new NotImplementedException();
         }
 
         public override void Leave()
         {
             base.Leave();
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public override float Update(float elapsedSeconds)
         {
-            throw new NotImplementedException();
+            if (_continue)
+            {
+                _body.LinearVelocity = new Vector2(1000, 0);
+                return elapsedSeconds;
+            }
+            _body.LinearVelocity = Vector2.Zero;
+            return 0;
         }
     }
 }

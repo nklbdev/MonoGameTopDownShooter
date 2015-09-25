@@ -20,19 +20,11 @@ namespace MonoGameTopDownShooter.HeroStates.Character
         {
         }
 
-        public void Crouch()
-        {
-        }
-
         public void Run()
         {
         }
 
         public void Walk()
-        {
-        }
-
-        public void Stop()
         {
         }
 

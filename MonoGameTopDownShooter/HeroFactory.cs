@@ -1,4 +1,6 @@
-﻿using FarseerPhysics.Dynamics;
+﻿using System.Xml;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTopDownShooter.HeroStates;
@@ -25,11 +27,12 @@ namespace MonoGameTopDownShooter
 
         public Hero Create()
         {
-            var hero = new Hero();
+            var body = new Body(_world, Vector2.Zero, 0, BodyType.Dynamic);
+            FixtureFactory.AttachCircle(10, 1, body);
+            var hero = new Hero(new AliveCharacterState(_world, new Stateful<IHands> {State = new PistolHandsState()}, new Stateful<IFeet> {State = new WalkingFeetState(body)}));
             _entityDispatcher.Register(hero);
             var heroView = new HeroView(hero, _texture);
             _viewDispatcher.Register(heroView);
-            hero.State = new AliveCharacterState(_world, hero, new Stateful<IHands>(), new Stateful<IFeet>());
             return hero;
         }
     }

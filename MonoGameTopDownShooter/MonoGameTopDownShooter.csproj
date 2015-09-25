@@ -43,9 +43,9 @@
     <Compile Include="Hero.cs" />
     <Compile Include="HeroFactory.cs" />
     <Compile Include="HeroStates\Character\AliveCharacterState.cs" />
+    <Compile Include="HeroStates\State.cs" />
     <Compile Include="IEntity.cs" />
     <Compile Include="HeroStates\Hands\BareHandsState.cs" />
-    <Compile Include="HeroStates\Feet\CrouchFeetState.cs" />
     <Compile Include="HeroStates\Character\DeadCharacterState.cs" />
     <Compile Include="HeroStates\Feet\RunningFeetState.cs" />
     <Compile Include="HeroStates\Stateful.cs" />
@@ -54,7 +54,6 @@
     <Compile Include="HeroStates\Hands\IHands.cs" />
     <Compile Include="HeroStates\IState.cs" />
     <Compile Include="HeroStates\Hands\PistolHandsState.cs" />
-    <Compile Include="HeroStates\Feet\StayingFeetState.cs" />
     <Compile Include="HeroStates\Feet\WalkingFeetState.cs" />
     <Compile Include="HeroView.cs" />
     <Compile Include="IDispatcher.cs" />

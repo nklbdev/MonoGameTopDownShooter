@@ -2,7 +2,6 @@
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using MonoGameTopDownShooter.HeroStates.Feet;
 using MonoGameTopDownShooter.HeroStates.Hands;
 
@@ -12,21 +11,17 @@ namespace MonoGameTopDownShooter.HeroStates.Character
     {
         private Body _body;
         private readonly World _world;
-        private readonly Stateful<ICharacter> _owner;
         private readonly Stateful<IHands> _hands;
         private readonly Stateful<IFeet> _feet;
 
-        public AliveCharacterState(World world, Stateful<ICharacter> owner, Stateful<IHands> hands, Stateful<IFeet> feet)
+        public AliveCharacterState(World world, Stateful<IHands> hands, Stateful<IFeet> feet)
         {
-            if (owner == null)
-                throw new ArgumentNullException("owner");
             if (world == null)
                 throw new ArgumentNullException("world");
             if (hands == null)
                 throw new ArgumentNullException("hands");
             if (feet == null)
                 throw new ArgumentNullException("feet");
-            _owner = owner;
             _world = world;
             _hands = hands;
             _feet = feet;
@@ -35,7 +30,7 @@ namespace MonoGameTopDownShooter.HeroStates.Character
         public void Die()
         {
             _hands.State.Gist.Drop();
-            _owner.State = new DeadCharacterState();
+            Owner.State = new DeadCharacterState { Position = Position, Rotation = Rotation };
         }
 
         public void Fire()
@@ -53,11 +48,6 @@ namespace MonoGameTopDownShooter.HeroStates.Character
             _feet.State.Gist.TurnTo(rotation);
         }
 
-        public void Crouch()
-        {
-            _feet.State.Gist.Crouch();
-        }
-
         public void Run()
         {
             _feet.State.Gist.Run();
@@ -68,11 +58,6 @@ namespace MonoGameTopDownShooter.HeroStates.Character
             _feet.State.Gist.Walk();
         }
 
-        public void Stop()
-        {
-            _feet.State.Gist.Stop();
-        }
-
         public void Move(float yaw)
         {
             _feet.State.Gist.Move(yaw);
@@ -80,9 +65,10 @@ namespace MonoGameTopDownShooter.HeroStates.Character
 
         public override ICharacter Gist { get { return this; } }
 
-        public override void Bring()
+        public override void Bring(Stateful<ICharacter> owner)
         {
-            base.Bring();
+            base.Bring(owner);
+            //owner.State.
             _body = new Body(_world, Vector2.Zero, 0, BodyType.Dynamic);
             FixtureFactory.AttachCircle(10, 1, _body);
         }
@@ -96,11 +82,19 @@ namespace MonoGameTopDownShooter.HeroStates.Character
 
         public override float Update(float elapsedSeconds)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-                _body.LinearVelocity += new Vector2(-10, 0);
+            //if (Keyboard.GetState().IsKeyDown(Keys.W))
+            //    _body.LinearVelocity += new Vector2(-10, 0);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
-                _owner.State = new DeadCharacterState { Position = Position, Rotation = Rotation };
+
+            var handsElapsedSeconds = elapsedSeconds;
+            var feetElapsedSeconds = elapsedSeconds;
+            while (handsElapsedSeconds > 0 || feetElapsedSeconds > 0)
+            {
+                if (handsElapsedSeconds > 0)
+                    handsElapsedSeconds -= _hands.State.Update(handsElapsedSeconds);
+                if (feetElapsedSeconds > 0)
+                    feetElapsedSeconds -= _feet.State.Update(feetElapsedSeconds);
+            }
 
             return elapsedSeconds;
         }
