@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" nextobjectid="5">
  <layer name="Слой тайлов 1" width="32" height="32">
   <data encoding="base64" compression="zlib">
    eJztwQENAAAAwqD3T20PBxQAAADwbhAAAAE=
   </data>
  </layer>
  <objectgroup name="Слой объектов 1">
-  <object x="32" y="16" width="144" height="48"/>
-  <object x="80" y="80" width="80" height="64"/>
-  <object x="208" y="32" width="64" height="144"/>
-  <object x="48" y="272">
+  <object id="1" x="32" y="16" width="144" height="48"/>
+  <object id="2" x="144" y="276" width="80" height="64"/>
+  <object id="3" x="328" y="128" width="64" height="144"/>
+  <object id="4" x="160" y="488">
    <polyline points="0,0 64,-48 208,-32 272,-96 304,-48 192,32 112,0 96,80 48,48"/>
   </object>
  </objectgroup>

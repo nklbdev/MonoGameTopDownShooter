@@ -1,38 +1,32 @@
-﻿using System.Xml;
-using FarseerPhysics.Dynamics;
-using FarseerPhysics.Factories;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MonoGameTopDownShooter.HeroStates;
-using MonoGameTopDownShooter.HeroStates.Character;
-using MonoGameTopDownShooter.HeroStates.Feet;
-using MonoGameTopDownShooter.HeroStates.Hands;
+﻿using FarseerPhysics.Dynamics;
 
 namespace MonoGameTopDownShooter
 {
     public class HeroFactory
     {
         private readonly World _world;
-        private readonly Texture2D _texture;
-        private readonly IDispatcher<IUpdateable> _entityDispatcher;
-        private readonly IDispatcher<IDrawable> _viewDispatcher;
+        private readonly IDispatcher<IUpdateable> _updationDispatcher;
+        private readonly IDispatcher<IDrawable> _drawingDispatcher;
 
-        public HeroFactory(World world, Texture2D texture, IDispatcher<IUpdateable> entityDispatcher, IDispatcher<IDrawable> viewDispatcher)
+        private readonly ICharacterStateFactory _characterStateFactory;
+
+        public HeroFactory(World world, IDispatcher<IUpdateable> updationDispatcher, IDispatcher<IDrawable> drawingDispatcher, ICharacterStateFactory characterStateFactory)
         {
             _world = world;
-            _texture = texture;
-            _entityDispatcher = entityDispatcher;
-            _viewDispatcher = viewDispatcher;
+            _updationDispatcher = updationDispatcher;
+            _drawingDispatcher = drawingDispatcher;
+            _characterStateFactory = characterStateFactory;
         }
 
         public Hero Create()
         {
-            var body = new Body(_world, Vector2.Zero, 0, BodyType.Dynamic);
-            FixtureFactory.AttachCircle(10, 1, body);
-            var hero = new Hero(new AliveCharacterState(_world, new Stateful<IHands> {State = new PistolHandsState()}, new Stateful<IFeet> {State = new WalkingFeetState(body)}));
-            _entityDispatcher.Register(hero);
-            var heroView = new HeroView(hero, _texture);
-            _viewDispatcher.Register(heroView);
+
+            var hero = new Hero();
+            hero.State = _characterStateFactory.CreateAliveState(hero);
+
+
+            _updationDispatcher.Register(hero);
+            _drawingDispatcher.Register(hero);
             return hero;
         }
     }

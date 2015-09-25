@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,6 +23,7 @@ namespace MonoGameTopDownShooter
             Content.RootDirectory = "Content";
             _updateableDispatcher = new UpdateableDispatcher();
             _drawableDispatcher = new DrawableDispatcher();
+            IsMouseVisible = true;
         }
 
         protected override void Initialize()
@@ -42,7 +44,8 @@ namespace MonoGameTopDownShooter
             var texture = new Texture2D(GraphicsDevice, 10, 10);
             texture.SetData(new[] { Color.Black });
 
-            var heroFactory = new HeroFactory(_world, texture, _updateableDispatcher, _drawableDispatcher);
+            var characterStateFactory = new CharacterStateFactory(GraphicsDevice, _world);
+            var heroFactory = new HeroFactory(_world, _updateableDispatcher, _drawableDispatcher, characterStateFactory);
 
             var map = new TmxMap(Content.RootDirectory + "\\map.tmx");
             foreach (var tmxObject in map.ObjectGroups.SelectMany(tmxObjectGroup => tmxObjectGroup.Objects))
@@ -68,9 +71,12 @@ namespace MonoGameTopDownShooter
 
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-                _hero.State.Gist.Move(0);
+                _hero.Move(0);
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-                _hero.State.Gist.Die();
+                _hero.Die();
+            var mousePosition = Mouse.GetState().Position.ToVector2();
+            var direction = mousePosition - _hero.Position;
+            _hero.TurnTo((float) Math.Atan2(direction.Y, direction.X));
 
             var elapsedSeconds = (float) gameTime.ElapsedGameTime.TotalSeconds;
             _world.Step(elapsedSeconds);

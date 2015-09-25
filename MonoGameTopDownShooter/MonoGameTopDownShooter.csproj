@@ -38,29 +38,31 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CharacterStateFactory.cs" />
     <Compile Include="DrawableDispatcher.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Hero.cs" />
     <Compile Include="HeroFactory.cs" />
-    <Compile Include="HeroStates\Character\AliveCharacterState.cs" />
-    <Compile Include="HeroStates\State.cs" />
-    <Compile Include="IEntity.cs" />
-    <Compile Include="HeroStates\Hands\BareHandsState.cs" />
-    <Compile Include="HeroStates\Character\DeadCharacterState.cs" />
-    <Compile Include="HeroStates\Feet\RunningFeetState.cs" />
-    <Compile Include="HeroStates\Stateful.cs" />
-    <Compile Include="HeroStates\Feet\IFeet.cs" />
-    <Compile Include="HeroStates\Character\ICharacter.cs" />
-    <Compile Include="HeroStates\Hands\IHands.cs" />
-    <Compile Include="HeroStates\IState.cs" />
-    <Compile Include="HeroStates\Hands\PistolHandsState.cs" />
-    <Compile Include="HeroStates\Feet\WalkingFeetState.cs" />
-    <Compile Include="HeroView.cs" />
+    <Compile Include="HeroStates\CharacterStates\AliveCharacterState.cs" />
+    <Compile Include="ICharacterStateFactory.cs" />
+    <Compile Include="ILocation.cs" />
+    <Compile Include="HeroStates\WeaponStates\BareHandsWeaponState.cs" />
+    <Compile Include="HeroStates\CharacterStates\DeadCharacterState.cs" />
+    <Compile Include="HeroStates\VehicleStates\MovingVehicleState.cs" />
+    <Compile Include="HeroStates\VehicleStates\IVehicle.cs" />
+    <Compile Include="HeroStates\CharacterStates\ICharacter.cs" />
+    <Compile Include="HeroStates\WeaponStates\IWeapon.cs" />
+    <Compile Include="HeroStates\WeaponStates\PistolWeaponState.cs" />
+    <Compile Include="HeroStates\VehicleStates\StayingVehicleState.cs" />
     <Compile Include="IDispatcher.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="IUpdateable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpriteBatchExtensions.cs" />
+    <Compile Include="States\IState.cs" />
+    <Compile Include="States\State.cs" />
+    <Compile Include="States\Stateful.cs" />
     <Compile Include="UpdateableDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
