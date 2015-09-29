@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" nextobjectid="22">
+ <tileset firstgid="1" name="player" tilewidth="16" tileheight="16">
+  <image source="player.png" width="97" height="70"/>
+ </tileset>
+ <layer name="Слой тайлов 1" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzt0s0KABAQReHZztbG+7+plUISiaucr2Z9xo+bmVvNi7nBJ+dUOwqnt0/vPbKwcdZZo7u/0R95pa/a4+d+EPdL6j3o6/rtP1T/RQAAgBUJdIQFUg==
+  </data>
+ </layer>
+ <objectgroup name="walls">
+  <object id="8" x="16" y="16">
+   <polyline points="0,0 480,0 480,480 0,480 0,0"/>
+  </object>
+  <object id="9" x="16" y="112">
+   <polyline points="0,0 384,0 384,32 0,32"/>
+  </object>
+  <object id="10" x="496" y="240">
+   <polyline points="0,0 -396,0 -388,32 0,32"/>
+  </object>
+  <object id="11" x="16" y="356">
+   <polyline points="0,0 396,-4 400,36 -8,32"/>
+  </object>
+ </objectgroup>
+ <objectgroup name="characters">
+  <object id="12" type="Hero" x="48" y="52"/>
+  <object id="14" type="Zombie" x="404" y="64"/>
+  <object id="15" type="Zombie" x="388" y="192"/>
+  <object id="16" type="Zombie" x="68" y="196"/>
+  <object id="17" type="Zombie" x="64" y="316"/>
+  <object id="18" type="Zombie" x="460" y="340"/>
+  <object id="19" type="Zombie" x="380" y="456"/>
+ </objectgroup>
+ <objectgroup name="zones">
+  <object id="20" type="Exit" x="40" y="416">
+   <polygon points="0,0 80,8 68,52 -4,56"/>
+  </object>
+  <object id="21" type="Exit" x="100" y="32">
+   <polygon points="0,0 80,8 68,52 -4,56"/>
+  </object>
+ </objectgroup>
+</map>
