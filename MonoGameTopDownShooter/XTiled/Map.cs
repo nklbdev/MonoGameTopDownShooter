@@ -178,25 +178,9 @@ namespace XTiled
                 throw new Exception("Map.InitObjectDrawing must be called before Map is loaded to enable object rendering");
             var rectangle = Translate(rect, region);
             spriteBatch.Draw(_whiteTexture, rectangle, new Rectangle?(), fillColor, 0.0f, Vector2.Zero, 0, layerDepth);
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
             Line.Draw(spriteBatch, Line.FromPoints(new Vector2(@rect.Right, @rect.Top), new Vector2(@rect.Left, @rect.Top)), region, _whiteTexture, 1f, linecolor, layerDepth);
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
             Line.Draw(spriteBatch, Line.FromPoints(new Vector2(@rect.Left, @rect.Top), new Vector2(@rect.Left, @rect.Bottom)), region, _whiteTexture, 1f, linecolor, layerDepth);
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
             Line.Draw(spriteBatch, Line.FromPoints(new Vector2(@rect.Left, @rect.Bottom), new Vector2(@rect.Right, @rect.Bottom)), region, _whiteTexture, 1f, linecolor, layerDepth);
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
-            // ISSUE: explicit reference operation
             Line.Draw(spriteBatch, Line.FromPoints(new Vector2(@rect.Right, @rect.Bottom), new Vector2(@rect.Right, @rect.Top)), region, _whiteTexture, 1f, linecolor, layerDepth);
         }
 
@@ -262,8 +246,6 @@ namespace XTiled
             var list = new List<MapObject>();
             for (var index = 0; index < ObjectLayers[objectLayerId].MapObjects.Length; ++index)
             {
-                // ISSUE: explicit reference operation
-                // ISSUE: explicit reference operation
                 if (@region.Contains(ObjectLayers[objectLayerId].MapObjects[index].Bounds) || @region.Intersects(ObjectLayers[objectLayerId].MapObjects[index].Bounds))
                     list.Add(ObjectLayers[objectLayerId].MapObjects[index]);
             }

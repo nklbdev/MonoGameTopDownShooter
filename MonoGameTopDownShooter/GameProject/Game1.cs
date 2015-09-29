@@ -18,7 +18,7 @@ namespace GameProject
         private SpriteBatch _spriteBatch;
         private Map _map;
         private Rectangle _mapView;
-        private Character _character;
+        private Tank _tank;
 
         private IGameState _state;
         private IGameStateFactory _stateFactory;
@@ -54,8 +54,8 @@ namespace GameProject
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             var container = new Container()
-                .Bind("alive", () => Content.Load<Texture2D>("alive"))
-                .Bind("dead", () => Content.Load<Texture2D>("dead"))
+                .Bind("alive", () => Content.Load<Texture2D>("body"))
+                .Bind("dead", () => Content.Load<Texture2D>("tower"))
                 .Bind(() => new World(Vector2.Zero));
 
             _mapView = _graphics.GraphicsDevice.Viewport.Bounds;

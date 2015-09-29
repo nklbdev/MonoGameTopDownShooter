@@ -41,11 +41,11 @@
     <Compile Include="Bullet.cs" />
     <Compile Include="CharacterFactory.cs" />
     <Compile Include="Factories\BulletFactory.cs" />
-    <Compile Include="Character.cs" />
+    <Compile Include="Tank.cs" />
     <Compile Include="CharacterController.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameStateFactory.cs" />
-    <Compile Include="ICharacter.cs" />
+    <Compile Include="ITank.cs" />
     <Compile Include="ICharacterFactory.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="IGameState.cs" />

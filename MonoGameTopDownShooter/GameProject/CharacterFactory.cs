@@ -16,9 +16,9 @@ namespace GameProject
             _deadTexture = deadTexture;
         }
 
-        public ICharacter CreateCharacter(MapObject mapObject, World world)
+        public ITank CreateCharacter(MapObject mapObject, World world)
         {
-            var character = new Character(
+            var character = new Tank(
                 world,
                 new Vector2(mapObject.Bounds.X, mapObject.Bounds.Y),
                 0,

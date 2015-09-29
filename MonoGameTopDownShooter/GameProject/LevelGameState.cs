@@ -11,7 +11,7 @@ namespace GameProject
     {
         private readonly World _world;
         private readonly Map _map;
-        private readonly HashSet<ICharacter> _characters = new HashSet<ICharacter>();
+        private readonly HashSet<ITank> _characters = new HashSet<ITank>();
         private readonly HashSet<CharacterController> _characterControllers = new HashSet<CharacterController>();
 
         public LevelGameState(World world, Map map)
@@ -24,14 +24,14 @@ namespace GameProject
             _map = map;
         }
 
-        public void AddCharacter(ICharacter character)
+        public void AddCharacter(ITank tank)
         {
-            _characters.Add(character);
+            _characters.Add(tank);
         }
 
-        public void RemoveCharacter(ICharacter character)
+        public void RemoveCharacter(ITank tank)
         {
-            _characters.Remove(character);
+            _characters.Remove(tank);
         }
 
         public void Update(float elapsedSeconds)

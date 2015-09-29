@@ -4,20 +4,26 @@ namespace GameProject
 {
     public class CharacterController : IUpdateable
     {
-        private readonly ICharacter _character;
+        private readonly ITank _tank;
 
-        public CharacterController(ICharacter character)
+        public CharacterController(ITank tank)
         {
-            _character = character;
+            _tank = tank;
         }
 
         public void Update(float elapsedSeconds)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-                _character.Move(0);
-            _character.LookAt(Mouse.GetState().Position.ToVector2());
+                _tank.Move(true);
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+                _tank.RotateBody(false);
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+                _tank.Move(false);
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+                _tank.RotateBody(true);
+            _tank.RotateTowerTo(Mouse.GetState().Position.ToVector2());
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-                _character.Fire();
+                _tank.Fire();
         }
     }
 }

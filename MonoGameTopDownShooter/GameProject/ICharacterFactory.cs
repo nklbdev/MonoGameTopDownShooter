@@ -5,6 +5,6 @@ namespace GameProject
 {
     internal interface ICharacterFactory
     {
-        ICharacter CreateCharacter(MapObject mapObject, World world);
+        ITank CreateCharacter(MapObject mapObject, World world);
     }
 }

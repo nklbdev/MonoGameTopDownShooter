@@ -21,8 +21,8 @@ namespace GameProject
             fixture.IsSensor = true;
             fixture.OnCollision += (a, b, contact) =>
             {
-                var heroa = a.UserData as Character;
-                var herob = b.UserData as Character;
+                var heroa = a.UserData as Tank;
+                var herob = b.UserData as Tank;
                 if (heroa != null)
                 {
                     heroa.TakeDamage(100);

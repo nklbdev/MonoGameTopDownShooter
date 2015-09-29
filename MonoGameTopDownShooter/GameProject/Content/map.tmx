@@ -3,7 +3,10 @@
  <tileset firstgid="1" name="player" tilewidth="16" tileheight="16">
   <image source="player.png" width="97" height="70"/>
  </tileset>
- <layer name="Слой тайлов 1" width="32" height="32">
+ <imagelayer name="images">
+  <image source="mapTexture.png"/>
+ </imagelayer>
+ <layer name="tiles" width="32" height="32">
   <data encoding="base64" compression="zlib">
    eJzt1jEKADAIA0DX7oL//2knoXQpHUwCGggdTwqCbmZOLisvf11F+rfdzc8ZzhftVyf9KK66z8r446v61TsZDx8xg/L/j9/HR+yass+Kko+4d3/96hmUfEZUfGY3nQ4YDw==
   </data>
