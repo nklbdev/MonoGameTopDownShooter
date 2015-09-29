@@ -25,7 +25,7 @@ namespace GameProject
                 throw new ArgumentNullException("map");
             var world = new World(Vector2.Zero);
 
-            var state = new LevelGameState(world);
+            var state = new LevelGameState(world, map);
 
             var first = true;
             foreach (var obj in map.ObjectLayers["characters"].MapObjects)

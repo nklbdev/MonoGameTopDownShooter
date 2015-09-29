@@ -18,7 +18,6 @@ namespace GameProject
         private SpriteBatch _spriteBatch;
         private Map _map;
         private Rectangle _mapView;
-        private ILevelRepository _levelRepository;
         private Character _character;
 
         private IGameState _state;
@@ -55,15 +54,9 @@ namespace GameProject
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             var container = new Container()
-                .Bind<ILevelRepository>(c => new LevelRepository(c.Resolve<HeroFactory>(), Content))
                 .Bind("alive", () => Content.Load<Texture2D>("alive"))
                 .Bind("dead", () => Content.Load<Texture2D>("dead"))
-                .Bind(() => new World(Vector2.Zero))
-                .Bind(c => new HeroFactory(c.Resolve<IDispatcher<IUpdateable>>(), c.Resolve<IDispatcher<IDrawable>>(), c.Resolve<Texture2D>("alive"), c.Resolve<Texture2D>("dead"), c.Resolve<BulletFactory>()))
-                .Bind<IDispatcher<IUpdateable>>(() => new UpdateableDispatcher())
-                .Bind<IDispatcher<IDrawable>>(() => new DrawableDispatcher())
-                .Bind(c => new BulletFactory(c.Resolve<IDispatcher<IUpdateable>>(), c.Resolve<IDispatcher<IDrawable>>(), c.Resolve<Texture2D>("dead")));
-            _levelRepository = container.Resolve<ILevelRepository>();
+                .Bind(() => new World(Vector2.Zero));
 
             _mapView = _graphics.GraphicsDevice.Viewport.Bounds;
 

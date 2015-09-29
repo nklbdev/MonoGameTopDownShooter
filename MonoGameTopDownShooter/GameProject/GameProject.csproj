@@ -44,7 +44,6 @@
     <Compile Include="Character.cs" />
     <Compile Include="CharacterController.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Factories\HeroFactory.cs" />
     <Compile Include="GameStateFactory.cs" />
     <Compile Include="ICharacter.cs" />
     <Compile Include="ICharacterFactory.cs" />

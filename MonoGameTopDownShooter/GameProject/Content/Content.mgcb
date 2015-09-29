@@ -18,7 +18,7 @@
 /importer:TmxContentImporter
 /processor:TmxContentProcessor
 /processorParam:LoadTextures=True
-/processorParam:TextureFormat=DxtCompressed
+/processorParam:TextureFormat=Color
 /processorParam:PremultiplyAlpha=True
 /build:map.tmx
 
