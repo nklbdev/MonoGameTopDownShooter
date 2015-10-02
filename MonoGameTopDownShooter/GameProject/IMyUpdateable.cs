@@ -1,6 +1,6 @@
 namespace GameProject
 {
-    public interface IUpdateable
+    public interface IMyUpdateable : IObservableDisposable
     {
         void Update(float elapsedSeconds);
     }

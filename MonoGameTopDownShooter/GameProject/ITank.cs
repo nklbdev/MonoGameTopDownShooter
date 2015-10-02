@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject
 {
-    public interface ITank : IUpdateable, IDrawable
+    public interface ITank : IMyUpdateable
     {
         void Fire();
         void RotateTowerTo(Vector2 destination);

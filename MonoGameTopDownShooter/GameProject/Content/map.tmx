@@ -26,13 +26,13 @@
   </object>
  </objectgroup>
  <objectgroup name="characters">
-  <object type="Hero" x="48" y="52"/>
-  <object type="Zombie" x="404" y="64"/>
-  <object type="Zombie" x="388" y="192"/>
-  <object type="Zombie" x="68" y="196"/>
-  <object type="Zombie" x="64" y="316"/>
-  <object type="Zombie" x="460" y="340"/>
-  <object type="Zombie" x="380" y="456"/>
+  <object type="Player" x="48" y="52"/>
+  <object type="Enemy" x="404" y="64"/>
+  <object type="Enemy" x="388" y="192"/>
+  <object type="Enemy" x="68" y="196"/>
+  <object type="Enemy" x="64" y="316"/>
+  <object type="Enemy" x="460" y="340"/>
+  <object type="Enemy" x="380" y="456"/>
  </objectgroup>
  <objectgroup name="zones">
   <object type="Exit" x="40" y="416">

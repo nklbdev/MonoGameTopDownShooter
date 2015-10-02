@@ -1,18 +1,30 @@
 ﻿using System;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
-using GameProject.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameProject
 {
-    public class Tank : ITank, IUpdateable, IDrawable
+    public class MyUpdaterFactory : IMyUpdaterFactory
+    {
+        public IMyUpdater Create()
+        {
+            return new MyUpdater();
+        }
+    }
+
+    public class MyDrawerFactory : IMyDrawerFactory
+    {
+        public IMyDrawer Create()
+        {
+            return new MyDrawer();
+        }
+    }
+
+    public class Tank : ITank
     {
         private readonly Body _body;
-        //private readonly World _world;
-        private readonly Texture2D _bodyTexture;
-        private readonly Texture2D _towerTexture;
         private Vector2 _bodyDirection = Vector2.UnitY;
         private Vector2 _towerDirection = Vector2.UnitX;
         private const float _radius = 20;
@@ -23,19 +35,26 @@ namespace GameProject
         private const float _rotationSpeed = 5;
         private const float _rotationSpeedWithMoving = 3;
 
-        private readonly BulletFactory _bulletFactory;
         private bool _isMovingQueuedForward;
         private bool _isRotationQueued;
         private bool _isRotationQueuedClockwise;
 
-        public Tank(World world, Vector2 position, float rotation, Texture2D aliveTexture, Texture2D deadTexture, BulletFactory bulletFactory)
+        public Tank(World world, Vector2 position, float rotation)
         {
-            //_world = world;
-            _bodyTexture = aliveTexture;
-            _towerTexture = deadTexture;
-            _body = new Body(world, position, 0, BodyType.Dynamic, this) { FixedRotation = true };
+            _body = new Body(world, position, rotation, BodyType.Dynamic, this) { FixedRotation = true };
             FixtureFactory.AttachCircle(_radius, 1, _body, Vector2.Zero, this);
-            _bulletFactory = bulletFactory;
+        }
+
+        public Vector2 Position
+        {
+            get { return _body.Position; }
+            set { _body.Position = value; }
+        }
+
+        public float Rotation
+        {
+            get { return _body.Rotation; }
+            set { _body.Rotation = value; }
         }
 
         public void Update(float elapsedSeconds)
@@ -83,6 +102,7 @@ namespace GameProject
         {
             _isMovingQueued = true;
             _isMovingQueuedForward = isForward;
+            Dispose();
         }
 
         public void TakeDamage(float damage)
@@ -91,25 +111,18 @@ namespace GameProject
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            spriteBatch.Draw(
-                _bodyTexture,
-                new Rectangle(_body.Position.ToPoint(), new Point((int)(_radius * 2), (int)(_radius * 2))),
-                null,
-                Color.White,
-                (float)Math.Atan2(_bodyDirection.Y, _bodyDirection.X),
-                new Vector2(_bodyTexture.Width / 2, _bodyTexture.Height / 2),
-                SpriteEffects.None,
-                0);
-
-            spriteBatch.Draw(
-                _towerTexture,
-                new Rectangle(_body.Position.ToPoint(), new Point((int)(_radius * 2), (int)(_radius * 2))),
-                null,
-                Color.White,
-                (float)Math.Atan2(_towerDirection.Y, _towerDirection.X),
-                new Vector2(_towerTexture.Width / 2, _towerTexture.Height / 2),
-                SpriteEffects.None,
-                0);
         }
+
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+            IsDisposed = true;
+            if (Disposed != null)
+                Disposed(this);
+        }
+
+        public bool IsDisposed { get; private set; }
+        public event Action<IObservableDisposable> Disposed;
     }
 }

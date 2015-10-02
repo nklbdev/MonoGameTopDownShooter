@@ -38,23 +38,31 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Bullet.cs" />
-    <Compile Include="CharacterFactory.cs" />
-    <Compile Include="Factories\BulletFactory.cs" />
+    <Compile Include="CustomMyComponent.cs" />
+    <Compile Include="ILevelLoader.cs" />
+    <Compile Include="IMapObjectProcessor.cs" />
+    <Compile Include="IMapObjectProcessorFactory.cs" />
+    <Compile Include="IMyComponent.cs" />
+    <Compile Include="IMyDrawer.cs" />
+    <Compile Include="IMyDrawerFactory.cs" />
+    <Compile Include="IMyUpdater.cs" />
+    <Compile Include="IMyUpdaterFactory.cs" />
+    <Compile Include="IObservableDisposable.cs" />
+    <Compile Include="LevelLoader.cs" />
+    <Compile Include="MapObjectProcessor.cs" />
+    <Compile Include="MyDrawer.cs" />
+    <Compile Include="MyUpdater.cs" />
+    <Compile Include="PhysicsWorldUpdater.cs" />
     <Compile Include="Tank.cs" />
     <Compile Include="CharacterController.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="GameStateFactory.cs" />
     <Compile Include="ITank.cs" />
-    <Compile Include="ICharacterFactory.cs" />
-    <Compile Include="IDrawable.cs" />
-    <Compile Include="IGameState.cs" />
-    <Compile Include="IGameStateFactory.cs" />
-    <Compile Include="IUpdateable.cs" />
-    <Compile Include="LevelGameState.cs" />
+    <Compile Include="IMyDrawable.cs" />
+    <Compile Include="IMyUpdateable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpriteBatchExtensions.cs" />
+    <Compile Include="TankView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FarseerPhysics.Portable, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">

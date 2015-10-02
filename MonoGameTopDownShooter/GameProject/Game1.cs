@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using FarseerPhysics.Dynamics;
-using GameProject.Factories;
+﻿using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SimplestIocContainer;
-using XTiled;
 
 namespace GameProject
 {
@@ -16,13 +13,7 @@ namespace GameProject
     {
         private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Map _map;
-        private Rectangle _mapView;
-        private Tank _tank;
-
-        private IGameState _state;
-        private IGameStateFactory _stateFactory;
-
+        private IMyComponent _myComponent;
 
         public Game1()
         {
@@ -41,7 +32,7 @@ namespace GameProject
             // TODO: Add your initialization logic here
 
             base.Initialize();
-            this.IsMouseVisible = true;
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -54,22 +45,14 @@ namespace GameProject
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             var container = new Container()
-                .Bind("alive", () => Content.Load<Texture2D>("body"))
-                .Bind("dead", () => Content.Load<Texture2D>("tower"))
-                .Bind(() => new World(Vector2.Zero));
+                .Bind<ILevelLoader>(c => new LevelLoader(Content, c.Resolve<IMyUpdaterFactory>(), c.Resolve<IMyDrawerFactory>(), c.Resolve<IMapObjectProcessorFactory>()))
+                .Bind<IMyUpdaterFactory>(c => new MyUpdaterFactory())
+                .Bind<IMyDrawerFactory>(c => new MyDrawerFactory())
+                .Bind<IMapObjectProcessorFactory>(c => new MapObjectProcessorFactory());
 
-            _mapView = _graphics.GraphicsDevice.Viewport.Bounds;
-
-            _map = Content.Load<Map>("map");
-            foreach (var obj in _map.ObjectLayers["characters"].MapObjects)
-            {
-                Trace.WriteLine(obj.Bounds);
-            }
-
-            _stateFactory = new GameStateFactory(new CharacterFactory(container.Resolve<Texture2D>("alive"), container.Resolve<Texture2D>("dead")));
-
-            _state = _stateFactory.CreateLevelState(Content.Load<Map>("map"));
+            _myComponent = container.Resolve<ILevelLoader>().LoadLevel("map");
         }
+
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -87,14 +70,7 @@ namespace GameProject
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            var elapsedSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _state.Update(elapsedSeconds);
-
-            // TODO: Add your update logic here
-
+            _myComponent.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -106,16 +82,19 @@ namespace GameProject
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
             _spriteBatch.Begin();
-            //_map.Draw(_spriteBatch, _mapView);
-
-            //var elapsedSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _state.Draw(_spriteBatch, gameTime);
-
+            _myComponent.Draw(_spriteBatch, (float)gameTime.ElapsedGameTime.TotalSeconds);
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+    }
+
+    public class MapObjectProcessorFactory : IMapObjectProcessorFactory
+    {
+        public IMapObjectProcessor Create(IMyUpdater updater, IMyDrawer drawer, World world, ContentManager contentManager)
+        {
+            return new MapObjectProcessor(updater, drawer, world, contentManager);
         }
     }
 }

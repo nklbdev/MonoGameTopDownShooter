@@ -1,8 +1,9 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using System;
+using Microsoft.Xna.Framework.Input;
 
 namespace GameProject
 {
-    public class CharacterController : IUpdateable
+    public class CharacterController : IMyUpdateable
     {
         private readonly ITank _tank;
 
@@ -25,5 +26,13 @@ namespace GameProject
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 _tank.Fire();
         }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsDisposed { get; private set; }
+        public event Action<IObservableDisposable> Disposed;
     }
 }
