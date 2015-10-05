@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework.Content.Pipeline;
+﻿using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using Microsoft.Xna.Framework.Graphics;
 using XTiled;
@@ -11,6 +10,7 @@ namespace XTiledExtensions
     {
         protected override void Write(ContentWriter output, Map value)
         {
+
             output.Write(value.Orientation == MapOrientation.Orthogonal);
             output.Write(value.Width);
             output.Write(value.Height);
@@ -21,206 +21,202 @@ namespace XTiledExtensions
             output.Write(value.Bounds.Height);
             output.Write(value.Bounds.Width);
             output.Write(value.LoadTextures);
+
             output.Write(value.Tilesets.Length);
-            foreach (var tileset in value.Tilesets)
+            foreach (var ts in value.Tilesets)
             {
-                output.Write(tileset.ImageFileName ?? string.Empty);
-                output.Write(tileset.ImageHeight);
-                output.Write(tileset.ImageWidth);
-                output.Write(tileset.Margin);
-                output.Write(tileset.Name ?? string.Empty);
-                output.Write(tileset.Spacing);
-                output.Write(tileset.TileHeight);
-                output.Write(tileset.TileOffsetX);
-                output.Write(tileset.TileOffsetY);
-                output.Write(tileset.TileWidth);
-                output.Write(tileset.ImageTransparentColor.HasValue);
-                if (tileset.ImageTransparentColor.HasValue)
+                output.Write(ts.ImageFileName ?? string.Empty);
+                output.Write(ts.ImageHeight);
+                output.Write(ts.ImageWidth);
+                output.Write(ts.Margin);
+                output.Write(ts.Name ?? string.Empty);
+                output.Write(ts.Spacing);
+                output.Write(ts.TileHeight);
+                output.Write(ts.TileOffsetX);
+                output.Write(ts.TileOffsetY);
+                output.Write(ts.TileWidth);
+
+                output.Write(ts.ImageTransparentColor.HasValue);
+                if (ts.ImageTransparentColor.HasValue)
+                    output.Write(ts.ImageTransparentColor.Value.A);
+
+                output.Write(ts.Tiles.Length);
+                foreach (var t in ts.Tiles)
                 {
-                    var contentWriter = output;
-                    var color = tileset.ImageTransparentColor.Value;
-                    // ISSUE: explicit reference operation
-                    var num = (int)@color.A;
-                    contentWriter.Write((byte)num);
-                }
-                output.Write(tileset.Tiles.Length);
-                foreach (var tile in tileset.Tiles)
-                {
-                    output.Write(tile.TilesetID);
-                    output.Write(tile.Origin.X);
-                    output.Write(tile.Origin.Y);
-                    output.Write(tile.Source.X);
-                    output.Write(tile.Source.Y);
-                    output.Write(tile.Source.Height);
-                    output.Write(tile.Source.Width);
-                    output.Write(tile.Properties.Count);
-                    foreach (var keyValuePair in tile.Properties)
+                    output.Write(t.TilesetId);
+                    output.Write(t.Origin.X);
+                    output.Write(t.Origin.Y);
+                    output.Write(t.Source.X);
+                    output.Write(t.Source.Y);
+                    output.Write(t.Source.Height);
+                    output.Write(t.Source.Width);
+
+                    output.Write(t.Properties.Count);
+                    foreach (var kv in t.Properties)
                     {
-                        output.Write(keyValuePair.Key ?? string.Empty);
-                        output.Write(keyValuePair.Value.Value ?? string.Empty);
+                        output.Write(kv.Key ?? string.Empty);
+                        output.Write(kv.Value.Value ?? string.Empty);
                     }
                 }
-                output.Write(tileset.Properties.Count);
-                foreach (var keyValuePair in tileset.Properties)
+
+                output.Write(ts.Properties.Count);
+                foreach (var kv in ts.Properties)
                 {
-                    output.Write(keyValuePair.Key ?? string.Empty);
-                    output.Write(keyValuePair.Value.Value ?? string.Empty);
+                    output.Write(kv.Key ?? string.Empty);
+                    output.Write(kv.Value.Value ?? string.Empty);
                 }
             }
+
             output.Write(value.Properties.Count);
-            foreach (var keyValuePair in value.Properties)
+            foreach (var kv in value.Properties)
             {
-                output.Write(keyValuePair.Key ?? string.Empty);
-                output.Write(keyValuePair.Value.Value ?? string.Empty);
+                output.Write(kv.Key ?? string.Empty);
+                output.Write(kv.Value.Value ?? string.Empty);
             }
+
             output.Write(value.TileLayers.Count);
-            foreach (var tileLayer in value.TileLayers)
+            foreach (var layer in value.TileLayers)
             {
-                output.Write(tileLayer.Name ?? string.Empty);
-                output.Write(tileLayer.Opacity);
-                // ISSUE: explicit reference operation
-                output.Write(@tileLayer.OpacityColor.A);
-                output.Write(tileLayer.Visible);
-                output.Write(tileLayer.Properties.Count);
-                foreach (var keyValuePair in tileLayer.Properties)
+                output.Write(layer.Name ?? string.Empty);
+                output.Write(layer.Opacity);
+                output.Write(layer.OpacityColor.A);
+                output.Write(layer.Visible);
+
+                output.Write(layer.Properties.Count);
+                foreach (var kv in layer.Properties)
                 {
-                    output.Write(keyValuePair.Key ?? string.Empty);
-                    output.Write(keyValuePair.Value.Value ?? string.Empty);
+                    output.Write(kv.Key ?? string.Empty);
+                    output.Write(kv.Value.Value ?? string.Empty);
                 }
-                output.Write(tileLayer.Tiles.Length);
-                foreach (var tileDataArray in tileLayer.Tiles)
+
+                output.Write(layer.Tiles.Length);
+                foreach (var row in layer.Tiles)
                 {
-                    output.Write(tileDataArray.Length);
-                    foreach (var tileData in tileDataArray)
+                    output.Write(row.Length);
+                    foreach (var tile in row)
                     {
-                        output.Write(tileData != null);
-                        if (tileData != null)
-                        {
-                            output.Write(tileData.Rotation);
-                            output.Write(tileData.SourceID);
-                            output.Write(tileData.Target.X);
-                            output.Write(tileData.Target.Y);
-                            output.Write(tileData.Target.Height);
-                            output.Write(tileData.Target.Width);
-                            output.Write(((Enum)tileData.Effects).HasFlag((SpriteEffects)1));
-                            output.Write(((Enum)tileData.Effects).HasFlag((SpriteEffects)2));
-                        }
+                        output.Write(tile != null);
+
+                        if (tile == null)
+                            continue;
+
+                        output.Write(tile.Rotation);
+                        output.Write(tile.SourceId);
+                        output.Write(tile.Target.X);
+                        output.Write(tile.Target.Y);
+                        output.Write(tile.Target.Height);
+                        output.Write(tile.Target.Width);
+                        output.Write(tile.Effects.HasFlag(SpriteEffects.FlipHorizontally));
+                        output.Write(tile.Effects.HasFlag(SpriteEffects.FlipVertically));
                     }
                 }
             }
+
             output.Write(value.SourceTiles.Length);
-            foreach (var tile in value.SourceTiles)
+            foreach (var t in value.SourceTiles)
             {
-                output.Write(tile.Origin.X);
-                output.Write(tile.Origin.Y);
-                output.Write(tile.Source.X);
-                output.Write(tile.Source.Y);
-                output.Write(tile.Source.Height);
-                output.Write(tile.Source.Width);
-                output.Write(tile.TilesetID);
-                output.Write(tile.Properties.Count);
-                foreach (var keyValuePair in tile.Properties)
+                output.Write(t.Origin.X);
+                output.Write(t.Origin.Y);
+                output.Write(t.Source.X);
+                output.Write(t.Source.Y);
+                output.Write(t.Source.Height);
+                output.Write(t.Source.Width);
+                output.Write(t.TilesetId);
+
+                output.Write(t.Properties.Count);
+                foreach (var kv in t.Properties)
                 {
-                    output.Write(keyValuePair.Key ?? string.Empty);
-                    output.Write(keyValuePair.Value.Value ?? string.Empty);
+                    output.Write(kv.Key ?? string.Empty);
+                    output.Write(kv.Value.Value ?? string.Empty);
                 }
             }
+
             output.Write(value.ObjectLayers.Count);
-            foreach (var objectLayer in value.ObjectLayers)
+            foreach (var ol in value.ObjectLayers)
             {
-                output.Write(objectLayer.Name ?? string.Empty);
-                output.Write(objectLayer.Opacity);
-                // ISSUE: explicit reference operation
-                output.Write(@objectLayer.OpacityColor.A);
-                output.Write(objectLayer.Visible);
-                output.Write(objectLayer.Color.HasValue);
-                if (objectLayer.Color.HasValue)
+                output.Write(ol.Name ?? string.Empty);
+                output.Write(ol.Opacity);
+                output.Write(ol.OpacityColor.A);
+                output.Write(ol.Visible);
+
+                output.Write(ol.Color.HasValue);
+                if (ol.Color.HasValue)
                 {
-                    var contentWriter1 = output;
-                    var color1 = objectLayer.Color.Value;
-                    // ISSUE: explicit reference operation
-                    var num1 = (int)@color1.R;
-                    contentWriter1.Write((byte)num1);
-                    var contentWriter2 = output;
-                    var color2 = objectLayer.Color.Value;
-                    // ISSUE: explicit reference operation
-                    var num2 = (int)@color2.G;
-                    contentWriter2.Write((byte)num2);
-                    var contentWriter3 = output;
-                    var color3 = objectLayer.Color.Value;
-                    // ISSUE: explicit reference operation
-                    var num3 = (int)@color3.B;
-                    contentWriter3.Write((byte)num3);
-                    var contentWriter4 = output;
-                    var color4 = objectLayer.Color.Value;
-                    // ISSUE: explicit reference operation
-                    var num4 = (int)@color4.A;
-                    contentWriter4.Write((byte)num4);
+                    output.Write(ol.Color.Value.R);
+                    output.Write(ol.Color.Value.G);
+                    output.Write(ol.Color.Value.B);
+                    output.Write(ol.Color.Value.A);
                 }
-                output.Write(objectLayer.MapObjects.Length);
-                foreach (var mapObject in objectLayer.MapObjects)
+
+                output.Write(ol.MapObjects.Length);
+                foreach (var m in ol.MapObjects)
                 {
-                    output.Write(mapObject.Bounds.X);
-                    output.Write(mapObject.Bounds.Y);
-                    output.Write(mapObject.Bounds.Height);
-                    output.Write(mapObject.Bounds.Width);
-                    output.Write(mapObject.Name ?? string.Empty);
-                    output.Write(mapObject.Type ?? string.Empty);
-                    output.Write(mapObject.Visible);
-                    output.Write(mapObject.TileID.HasValue);
-                    if (mapObject.TileID.HasValue)
-                        output.Write(mapObject.TileID.Value);
-                    output.Write(mapObject.Polyline != null);
-                    if (mapObject.Polyline != null)
+                    output.Write(m.Bounds.X);
+                    output.Write(m.Bounds.Y);
+                    output.Write(m.Bounds.Height);
+                    output.Write(m.Bounds.Width);
+                    output.Write(m.Name ?? string.Empty);
+                    output.Write(m.Type ?? string.Empty);
+                    output.Write(m.Visible);
+
+                    output.Write(m.TileId.HasValue);
+                    if (m.TileId.HasValue)
+                        output.Write(m.TileId.Value);
+
+                    output.Write(m.Polyline != null);
+                    if (m.Polyline != null)
                     {
-                        output.Write(mapObject.Polyline.Points.Length);
-                        foreach (var point in mapObject.Polyline.Points)
+                        output.Write(m.Polyline.Points.Length);
+                        foreach (var p in m.Polyline.Points)
                         {
-                            output.Write(point.X);
-                            output.Write(point.Y);
+                            output.Write(p.X);
+                            output.Write(p.Y);
                         }
                     }
-                    output.Write(mapObject.Polygon != null);
-                    if (mapObject.Polygon != null)
+
+                    output.Write(m.Polygon != null);
+                    if (m.Polygon != null)
                     {
-                        output.Write(mapObject.Polygon.Points.Length);
-                        foreach (var point in mapObject.Polygon.Points)
+                        output.Write(m.Polygon.Points.Length);
+                        foreach (var p in m.Polygon.Points)
                         {
-                            output.Write(point.X);
-                            output.Write(point.Y);
+                            output.Write(p.X);
+                            output.Write(p.Y);
                         }
                     }
-                    output.Write(mapObject.Properties.Count);
-                    foreach (var keyValuePair in mapObject.Properties)
+
+                    output.Write(m.Properties.Count);
+                    foreach (var kv in m.Properties)
                     {
-                        output.Write(keyValuePair.Key ?? string.Empty);
-                        output.Write(keyValuePair.Value.Value ?? string.Empty);
+                        output.Write(kv.Key ?? string.Empty);
+                        output.Write(kv.Value.Value ?? string.Empty);
                     }
                 }
-                output.Write(objectLayer.Properties.Count);
-                foreach (var keyValuePair in objectLayer.Properties)
+
+                output.Write(ol.Properties.Count);
+                foreach (var kv in ol.Properties)
                 {
-                    output.Write(keyValuePair.Key ?? string.Empty);
-                    output.Write(keyValuePair.Value.Value ?? string.Empty);
+                    output.Write(kv.Key ?? string.Empty);
+                    output.Write(kv.Value.Value ?? string.Empty);
                 }
             }
+
             output.Write(value.LayerOrder.Length);
-            foreach (var layerInfo in value.LayerOrder)
+            foreach (var lo in value.LayerOrder)
             {
-                output.Write(layerInfo.ID);
-                output.Write(layerInfo.LayerType == LayerType.TileLayer);
+                output.Write(lo.Id);
+                output.Write(lo.LayerType == LayerType.TileLayer);
             }
+
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            //return "TmxContentReader, XTiledExtensions";
             return typeof(TmxContentReader).AssemblyQualifiedName;
         }
 
         public override string GetRuntimeType(TargetPlatform targetPlatform)
         {
-            //return "Map, XTiledExtensions";
             return typeof(Map).AssemblyQualifiedName;
         }
     }

@@ -5,6 +5,6 @@ namespace GameProject
     public interface IObservableDisposable : IDisposable
     {
         bool IsDisposed { get; }
-        event Action<IObservableDisposable> Disposed;
+        event Action<IEntity> Disposed;
     }
 }

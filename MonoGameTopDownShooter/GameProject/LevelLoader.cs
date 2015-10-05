@@ -1,7 +1,9 @@
 using System.Linq;
 using FarseerPhysics.Dynamics;
+using GameProject.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using XTiled;
 
 namespace GameProject
@@ -9,33 +11,28 @@ namespace GameProject
     public class LevelLoader : ILevelLoader
     {
         private readonly ContentManager _contentManager;
-        private readonly IMyUpdaterFactory _updaterFactory;
-        private readonly IMyDrawerFactory _drawerrFactory;
         private readonly IMapObjectProcessorFactory _mapObjectProcessorFactory;
 
-        public LevelLoader(ContentManager contentManager, IMyUpdaterFactory updaterFactory, IMyDrawerFactory drawerrFactory, IMapObjectProcessorFactory mapObjectProcessorFactory)
+        public LevelLoader(ContentManager contentManager, IMapObjectProcessorFactory mapObjectProcessorFactory)
         {
             _contentManager = contentManager;
-            _updaterFactory = updaterFactory;
-            _drawerrFactory = drawerrFactory;
             _mapObjectProcessorFactory = mapObjectProcessorFactory;
         }
 
-        public IMyComponent LoadLevel(string resourceName)
+        public void LoadLevel(Ticker physicsTicker, Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, SpriteBatch spriteBatch, string resourceName)
         {
-            var updater = _updaterFactory.Create();
-            var drawer = _drawerrFactory.Create();
-
             var map = _contentManager.Load<Map>(resourceName);
+
+            //new BackgroundView(_contentManager.Load<Texture2D>("grass"), spriteBatch) { Ticker = drawingTicker };
+            new MapView(map, spriteBatch) { Ticker = drawingTicker };
+
             var world = new World(Vector2.Zero);
-            updater.AddUpdateable(new PhysicsWorldUpdater(world));
-            var mapObjectProcessor = _mapObjectProcessorFactory.Create(updater, drawer, world, _contentManager);
+            new PhysicsWorldUpdater(world).Ticker = physicsTicker;
+
+            var mapObjectProcessor = _mapObjectProcessorFactory.Create(inputTicker, logicTicker, drawingTicker, world, _contentManager, spriteBatch);
 
             foreach (var mapObject in map.ObjectLayers.SelectMany(layer => layer.MapObjects))
                 mapObjectProcessor.Process(mapObject);
-
-            var context = new CustomMyComponent(updater, drawer);
-            return context;
         }
     }
 }

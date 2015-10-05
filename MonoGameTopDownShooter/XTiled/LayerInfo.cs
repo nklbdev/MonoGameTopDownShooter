@@ -1,8 +1,17 @@
 ﻿namespace XTiled
 {
+    /// <summary>
+    /// References either a TileLayer or ObjectLayer
+    /// </summary>
     public struct LayerInfo
     {
-        public int ID;
+        /// <summary>
+        /// The Layer Index/ID
+        /// </summary>
+        public int Id;
+        /// <summary>
+        /// They type of layer
+        /// </summary>
         public LayerType LayerType;
     }
 }

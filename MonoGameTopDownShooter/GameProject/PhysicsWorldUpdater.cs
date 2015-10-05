@@ -1,9 +1,10 @@
-using System;
 using FarseerPhysics.Dynamics;
+using GameProject.Entities;
+using Microsoft.Xna.Framework;
 
 namespace GameProject
 {
-    public class PhysicsWorldUpdater : IMyUpdateable
+    public class PhysicsWorldUpdater : Entity
     {
         private readonly World _world;
 
@@ -12,16 +13,9 @@ namespace GameProject
             _world = world;
         }
 
-        public void Dispose()
+        public override void Update(GameTime gameTime)
         {
-            throw new NotSupportedException();
-        }
-
-        public bool IsDisposed { get { return false; } }
-        public event Action<IObservableDisposable> Disposed;
-        public void Update(float elapsedSeconds)
-        {
-            _world.Step(elapsedSeconds);
+            _world.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
         }
     }
 }

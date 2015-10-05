@@ -23,18 +23,19 @@ namespace XTiledExtensions
     [ContentProcessor(DisplayName = "TMX Map Processor - XTiled")]
     public class TmxContentProcessor : ContentProcessor<XDocument, Map>
     {
-        //private const uint FLIPPED_HORIZONTALLY_FLAG = 2147483648U;
-        //private const uint FLIPPED_VERTICALLY_FLAG = 1073741824U;
-        //private const uint FLIPPED_DIAGONALLY_FLAG = 536870912U;
 
+        private const uint _flippedHorizontallyFlag = 0x80000000;
+        private const uint _flippedVerticallyFlag = 0x40000000;
+        private const uint _flippedDiagonallyFlag = 0x20000000;
+
+        [DisplayName("Load Textures")]
         [DefaultValue(true)]
         [Description("If true, XTiled will build textures with the Map.")]
-        [DisplayName("Load Textures")]
         public bool LoadTextures { get; set; }
 
-        [Description("Texture processor output format if loading textures")]
-        [DefaultValue(TextureProcessorOutputFormat.Color)]
         [DisplayName("Texture - Format")]
+        [DefaultValue(TextureProcessorOutputFormat.Color)]
+        [Description("Texture processor output format if loading textures")]
         public TextureProcessorOutputFormat TextureFormat { get; set; }
 
         [DisplayName("Texture - Premultiply Alpha")]
@@ -45,421 +46,454 @@ namespace XTiledExtensions
         public TmxContentProcessor()
         {
             LoadTextures = true;
-            TextureFormat = (TextureProcessorOutputFormat)1;
+            TextureFormat = TextureProcessorOutputFormat.Color;
             PremultiplyAlpha = true;
         }
 
         public override Map Process(XDocument input, ContentProcessorContext context)
         {
-            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            var culture = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
             var map = new Map { LoadTextures = LoadTextures };
-            var list1 = new List<Tile>();
-            var dictionary = new Dictionary<uint, int> { { 0U, -1 } };
-            var path1 = input.Document.Root.Element("File").Attribute("path").Value;
-            if (Convert.ToDecimal(input.Document.Root.Attribute("version").Value) != new Decimal(10, 0, 0, false, 1))
+            var mapTiles = new List<Tile>();
+            var gid2Id = new Dictionary<uint, int> { { 0, -1 } };
+
+            var mapDirectory = input.Document.Root.Element("File").Attribute("path").Value;
+
+            var version = Convert.ToDecimal(input.Document.Root.Attribute("version").Value);
+            if (version != 1.0M)
                 throw new NotSupportedException("XTiled only supports TMX maps version 1.0");
+
             switch (input.Document.Root.Attribute("orientation").Value)
             {
                 case "orthogonal":
                     map.Orientation = MapOrientation.Orthogonal;
                     break;
+
                 case "isometric":
                     map.Orientation = MapOrientation.Isometric;
                     break;
+
                 default:
                     throw new NotSupportedException("XTiled supports only orthogonal or isometric maps");
             }
+
             map.Width = Convert.ToInt32(input.Document.Root.Attribute("width").Value);
             map.Height = Convert.ToInt32(input.Document.Root.Attribute("height").Value);
             map.TileWidth = Convert.ToInt32(input.Document.Root.Attribute("tilewidth").Value);
             map.TileHeight = Convert.ToInt32(input.Document.Root.Attribute("tileheight").Value);
             map.Bounds = new Rectangle(0, 0, map.Width * map.TileWidth, map.Height * map.TileHeight);
+
             map.Properties = new Dictionary<string, Property>();
             if (input.Document.Root.Element("properties") != null)
+                foreach (var pElem in input.Document.Root.Element("properties").Elements("property"))
+                    map.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+
+            var tilesets = new List<Tileset>();
+            foreach (var elem in input.Document.Root.Elements("tileset"))
             {
-                foreach (var xelement in input.Document.Root.Element("properties").Elements("property"))
-                    map.Properties.Add(xelement.Attribute("name").Value, Property.Create(xelement.Attribute("value").Value));
-            }
-            var list2 = new List<Tileset>();
-            foreach (var xelement1 in input.Document.Root.Elements("tileset"))
-            {
-                var tileset = new Tileset();
-                var xelement2 = xelement1;
-                var num1 = Convert.ToUInt32(xelement2.Attribute("firstgid").Value);
-                if (xelement1.Attribute("source") != null)
-                    xelement2 = XDocument.Load(xelement1.Attribute("source").Value).Root;
-                tileset.Name = xelement2.Attribute("name") == null ? null : xelement2.Attribute("name").Value;
-                tileset.TileWidth = xelement2.Attribute("tilewidth") == null ? 0 : Convert.ToInt32(xelement2.Attribute("tilewidth").Value);
-                tileset.TileHeight = xelement2.Attribute("tileheight") == null ? 0 : Convert.ToInt32(xelement2.Attribute("tileheight").Value);
-                tileset.Spacing = xelement2.Attribute("spacing") == null ? 0 : Convert.ToInt32(xelement2.Attribute("spacing").Value);
-                tileset.Margin = xelement2.Attribute("margin") == null ? 0 : Convert.ToInt32(xelement2.Attribute("margin").Value);
-                if (xelement2.Element("tileoffset") != null)
+                var t = new Tileset();
+                var tElem = elem;
+                var firstGid = Convert.ToUInt32(tElem.Attribute("firstgid").Value);
+                var fileRoot = mapDirectory;
+
+                if (elem.Attribute("source") != null)
                 {
-                    tileset.TileOffsetX = Convert.ToInt32(xelement2.Element("tileoffset").Attribute("x").Value);
-                    tileset.TileOffsetY = Convert.ToInt32(xelement2.Element("tileoffset").Attribute("y").Value);
+                    fileRoot = Path.Combine(mapDirectory, elem.Attribute("source").Value);
+                    var tsx = XDocument.Load(fileRoot);
+                    fileRoot = Path.GetDirectoryName(fileRoot);
+                    tElem = tsx.Root;
+                }
+
+                t.Name = tElem.Attribute("name") == null ? null : tElem.Attribute("name").Value;
+                t.TileWidth = tElem.Attribute("tilewidth") == null ? 0 : Convert.ToInt32(tElem.Attribute("tilewidth").Value);
+                t.TileHeight = tElem.Attribute("tileheight") == null ? 0 : Convert.ToInt32(tElem.Attribute("tileheight").Value);
+                t.Spacing = tElem.Attribute("spacing") == null ? 0 : Convert.ToInt32(tElem.Attribute("spacing").Value);
+                t.Margin = tElem.Attribute("margin") == null ? 0 : Convert.ToInt32(tElem.Attribute("margin").Value);
+
+                if (tElem.Element("tileoffset") != null)
+                {
+                    t.TileOffsetX = Convert.ToInt32(tElem.Element("tileoffset").Attribute("x").Value);
+                    t.TileOffsetY = Convert.ToInt32(tElem.Element("tileoffset").Attribute("y").Value);
                 }
                 else
                 {
-                    tileset.TileOffsetX = 0;
-                    tileset.TileOffsetY = 0;
+                    t.TileOffsetX = 0;
+                    t.TileOffsetY = 0;
                 }
-                if (xelement2.Element("image") != null)
+
+                if (tElem.Element("image") != null)
                 {
-                    var xelement3 = xelement2.Element("image");
-                    tileset.ImageFileName = Path.Combine(path1, xelement3.Attribute("source").Value);
-                    tileset.ImageWidth = xelement3.Attribute("width") == null ? -1 : Convert.ToInt32(xelement3.Attribute("width").Value);
-                    tileset.ImageHeight = xelement3.Attribute("height") == null ? -1 : Convert.ToInt32(xelement3.Attribute("height").Value);
-                    tileset.ImageTransparentColor = new Color?();
-                    if (xelement3.Attribute("trans") != null)
+                    var imgElem = tElem.Element("image");
+                    t.ImageFileName = Path.Combine(fileRoot, imgElem.Attribute("source").Value);
+                    t.ImageWidth = imgElem.Attribute("width") == null ? -1 : Convert.ToInt32(imgElem.Attribute("width").Value);
+                    t.ImageHeight = imgElem.Attribute("height") == null ? -1 : Convert.ToInt32(imgElem.Attribute("height").Value);
+                    t.ImageTransparentColor = null;
+                    if (imgElem.Attribute("trans") != null)
                     {
-                        var color = ColorTranslator.FromHtml("#" + xelement3.Attribute("trans").Value.TrimStart('#'));
-                        tileset.ImageTransparentColor = new Color(color.R, color.G, color.B);
+                        var sdc = ColorTranslator.FromHtml("#" + imgElem.Attribute("trans").Value.TrimStart('#'));
+                        t.ImageTransparentColor = new Color(sdc.R, sdc.G, sdc.B);
                     }
-                    if (!(tileset.ImageWidth != -1 && tileset.ImageHeight != -1))
+
+                    if (t.ImageWidth == -1 || t.ImageHeight == -1)
                     {
                         try
                         {
-                            var image = Image.FromFile(tileset.ImageFileName);
-                            tileset.ImageHeight = image.Height;
-                            tileset.ImageWidth = image.Width;
+                            var sdi = Image.FromFile(t.ImageFileName);
+                            t.ImageHeight = sdi.Height;
+                            t.ImageWidth = sdi.Width;
                         }
                         catch (Exception ex)
                         {
-                            throw new Exception(
-                                string.Format("Image size not set for {0} and error loading file.",
-                                    tileset.ImageFileName), ex);
+                            throw new Exception(string.Format("Image size not set for {0} and error loading file.", t.ImageFileName), ex);
                         }
                     }
+
                     if (LoadTextures)
                     {
-                        var str = Path.Combine(Path.GetDirectoryName(context.OutputFilename.Remove(0, context.OutputDirectory.Length)), Path.GetFileNameWithoutExtension(context.OutputFilename), list2.Count.ToString("00"));
-                        var opaqueDataDictionary = new OpaqueDataDictionary
+                        var assetName = Path.Combine(
+                                Path.GetDirectoryName(context.OutputFilename.Remove(0, context.OutputDirectory.Length)),
+                                Path.GetFileNameWithoutExtension(context.OutputFilename),
+                                tilesets.Count.ToString("00"));
+
+                        var data = new OpaqueDataDictionary
                         {
                             {"GenerateMipmaps", false},
                             {"ResizeToPowerOfTwo", false},
-                            {"PremultiplyAlpha", PremultiplyAlpha ? 1 : 0},
+                            {"PremultiplyAlpha", PremultiplyAlpha},
                             {"TextureFormat", TextureFormat},
-                            {"ColorKeyEnabled", tileset.ImageTransparentColor.HasValue ? 1 : 0},
-                            {"ColorKeyColor", tileset.ImageTransparentColor ?? Color.Magenta }
+                            {"ColorKeyEnabled", t.ImageTransparentColor.HasValue},
+                            {"ColorKeyColor", t.ImageTransparentColor ?? Color.Magenta}
                         };
-                        context.BuildAsset<TextureContent, TextureContent>(new ExternalReference<TextureContent>(tileset.ImageFileName), "TextureProcessor", opaqueDataDictionary, "TextureImporter", str);
+                        context.BuildAsset<TextureContent, TextureContent>(new ExternalReference<TextureContent>(t.ImageFileName),
+                            "TextureProcessor", data, "TextureImporter", assetName);
                     }
                 }
-                var index = num1;
-                var num2 = tileset.Margin;
-                while (num2 < tileset.ImageHeight - tileset.Margin)
+
+                var gid = firstGid;
+                for (var y = t.Margin; y < t.ImageHeight - t.Margin; y += t.TileHeight + t.Spacing)
                 {
-                    if (num2 + tileset.TileHeight <= tileset.ImageHeight - tileset.Margin)
+                    if (y + t.TileHeight > t.ImageHeight - t.Margin)
+                        continue;
+
+                    for (var x = t.Margin; x < t.ImageWidth - t.Margin; x += t.TileWidth + t.Spacing)
                     {
-                        var num3 = tileset.Margin;
-                        while (num3 < tileset.ImageWidth - tileset.Margin)
+                        if (x + t.TileWidth > t.ImageWidth - t.Margin)
+                            continue;
+
+                        var tile = new Tile
                         {
-                            if (num3 + tileset.TileWidth <= tileset.ImageWidth - tileset.Margin)
-                            {
-                                list1.Add(new Tile
-                                {
-                                    Source = new Rectangle(num3, num2, tileset.TileWidth, tileset.TileHeight),
-                                    Origin = new Vector2(tileset.TileWidth / 2, tileset.TileHeight / 2),
-                                    TilesetID = list2.Count,
-                                    Properties = new Dictionary<string, Property>()
-                                });
-                                dictionary[index] = list1.Count - 1;
-                                ++index;
-                            }
-                            num3 += tileset.TileWidth + tileset.Spacing;
-                        }
+                            Source = new Rectangle(x, y, t.TileWidth, t.TileHeight),
+                            Origin = new Vector2(t.TileWidth / 2f, t.TileHeight / 2f),
+                            TilesetId = tilesets.Count,
+                            Properties = new Dictionary<string, Property>()
+                        };
+                        mapTiles.Add(tile);
+
+                        gid2Id[gid] = mapTiles.Count - 1;
+                        gid++;
                     }
-                    num2 += tileset.TileHeight + tileset.Spacing;
                 }
-                var list3 = new List<Tile>();
-                foreach (var xelement3 in xelement2.Elements("tile"))
+
+                var tiles = new List<Tile>();
+                foreach (var tileElem in tElem.Elements("tile"))
                 {
-                    var num3 = Convert.ToUInt32(xelement3.Attribute("id").Value);
-                    var tile = list1[dictionary[num3 + num1]];
-                    if (xelement3.Element("properties") != null)
-                    {
-                        foreach (var xelement4 in xelement3.Element("properties").Elements("property"))
-                            tile.Properties.Add(xelement4.Attribute("name").Value, Property.Create(xelement4.Attribute("value").Value));
-                    }
-                    list3.Add(tile);
+                    var id = Convert.ToUInt32(tileElem.Attribute("id").Value);
+                    var tile = mapTiles[gid2Id[id + firstGid]];
+                    if (tileElem.Element("properties") != null)
+                        foreach (var pElem in tileElem.Element("properties").Elements("property"))
+                            tile.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+                    tiles.Add(tile);
                 }
-                tileset.Tiles = list3.ToArray();
-                tileset.Properties = new Dictionary<string, Property>();
-                if (xelement2.Element("properties") != null)
-                {
-                    foreach (var xelement3 in xelement2.Element("properties").Elements("property"))
-                        tileset.Properties.Add(xelement3.Attribute("name").Value, Property.Create(xelement3.Attribute("value").Value));
-                }
-                list2.Add(tileset);
+                t.Tiles = tiles.ToArray();
+
+                t.Properties = new Dictionary<string, Property>();
+                if (tElem.Element("properties") != null)
+                    foreach (var pElem in tElem.Element("properties").Elements("property"))
+                        t.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+
+                tilesets.Add(t);
             }
-            map.Tilesets = list2.ToArray();
-            var tileLayerList = new TileLayerList();
-            foreach (var xelement1 in input.Document.Root.Elements("layer"))
+            map.Tilesets = tilesets.ToArray();
+
+            var layers = new TileLayerList();
+            foreach (var lElem in input.Document.Root.Elements("layer"))
             {
-                var tileLayer = new TileLayer
+                var l = new TileLayer
                 {
-                    Name = xelement1.Attribute("name") == null ? null : xelement1.Attribute("name").Value,
-                    Opacity = xelement1.Attribute("opacity") == null ? 1f : Convert.ToSingle(xelement1.Attribute("opacity").Value),
-                    Visible = xelement1.Attribute("visible") == null || xelement1.Attribute("visible").Equals("1"),
+                    Name = lElem.Attribute("name") == null ? null : lElem.Attribute("name").Value,
+                    Opacity = lElem.Attribute("opacity") == null ? 1.0f : Convert.ToSingle(lElem.Attribute("opacity").Value),
+                    Visible = lElem.Attribute("visible") == null,
                     OpacityColor = Color.White
                 };
-                // ISSUE: explicit reference operation
-                @tileLayer.OpacityColor.A = Convert.ToByte(byte.MaxValue * tileLayer.Opacity);
-                tileLayer.Properties = new Dictionary<string, Property>();
-                if (xelement1.Element("properties") != null)
+
+                l.OpacityColor.A = Convert.ToByte(255.0f * l.Opacity);
+
+                l.Properties = new Dictionary<string, Property>();
+                if (lElem.Element("properties") != null)
+                    foreach (var pElem in lElem.Element("properties").Elements("property"))
+                        l.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+
+                var tiles = new TileData[map.Orientation == MapOrientation.Orthogonal ? map.Width : map.Height + map.Width - 1][];
+                for (var i = 0; i < tiles.Length; i++)
+                    tiles[i] = new TileData[map.Orientation == MapOrientation.Orthogonal ? map.Height : map.Height + map.Width - 1];
+
+                if (lElem.Element("data") != null)
                 {
-                    foreach (var xelement2 in xelement1.Element("properties").Elements("property"))
-                        tileLayer.Properties.Add(xelement2.Attribute("name").Value, Property.Create(xelement2.Attribute("value").Value));
-                }
-                var tileDataArray = new TileData[map.Orientation == MapOrientation.Orthogonal ? map.Width : map.Height + map.Width - 1][];
-                for (var index = 0; index < tileDataArray.Length; ++index)
-                    tileDataArray[index] = new TileData[map.Orientation == MapOrientation.Orthogonal ? map.Height : map.Height + map.Width - 1];
-                if (xelement1.Element("data") != null)
-                {
-                    var list3 = new List<uint>();
-                    if (xelement1.Element("data").Attribute("encoding") != null || xelement1.Element("data").Attribute("compression") != null)
+                    var gids = new List<uint>();
+                    if (lElem.Element("data").Attribute("encoding") != null ||
+                        lElem.Element("data").Attribute("compression") != null)
                     {
-                        if (xelement1.Element("data").Attribute("encoding") != null && xelement1.Element("data").Attribute("encoding").Value.Equals("csv"))
+                        // parse csv formatted data
+                        if (lElem.Element("data").Attribute("encoding") != null &&
+                            lElem.Element("data").Attribute("encoding").Value.Equals("csv"))
+                            gids.AddRange(lElem.Element("data")
+                                .Value.Split(",\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                                .Select(gid => Convert.ToUInt32(gid)));
+
+                        else if (lElem.Element("data").Attribute("encoding") != null &&
+                                 lElem.Element("data").Attribute("encoding").Value.Equals("base64"))
                         {
-                            list3.AddRange(xelement1.Element("data").Value.Split(",\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(str => Convert.ToUInt32(str)));
+                            var data = Convert.FromBase64String(lElem.Element("data").Value);
+
+                            if (lElem.Element("data").Attribute("compression") == null)
+                                // uncompressed data
+                                for (var i = 0; i < data.Length; i += sizeof(uint))
+                                    gids.Add(BitConverter.ToUInt32(data, i));
+
+                            else if (lElem.Element("data").Attribute("compression").Value.Equals("gzip"))
+                            {
+                                // gzip data
+                                var gz = new GZipStream(new MemoryStream(data), CompressionMode.Decompress);
+                                var buffer = new byte[sizeof(uint)];
+                                while (gz.Read(buffer, 0, buffer.Length) == buffer.Length)
+                                    gids.Add(BitConverter.ToUInt32(buffer, 0));
+                            }
+                            else if (lElem.Element("data").Attribute("compression").Value.Equals("zlib"))
+                            {
+                                // zlib data - first two bytes zlib specific and not part of deflate
+                                var ms = new MemoryStream(data);
+                                ms.ReadByte();
+                                ms.ReadByte();
+                                var gz = new DeflateStream(ms, CompressionMode.Decompress);
+                                var buffer = new byte[sizeof(uint)];
+                                while (gz.Read(buffer, 0, buffer.Length) == buffer.Length)
+                                    gids.Add(BitConverter.ToUInt32(buffer, 0));
+                            }
+                            else
+                            {
+                                throw new NotSupportedException(
+                                    string.Format("Compression '{0}' not supported.  XTiled supports gzip or zlib",
+                                        lElem.Element("data").Attribute("compression").Value));
+                            }
                         }
                         else
                         {
-                            if (xelement1.Element("data").Attribute("encoding") == null || !xelement1.Element("data").Attribute("encoding").Value.Equals("base64"))
-                                throw new NotSupportedException(string.Format("Encoding '{0}' not supported.  XTiled supports csv or base64", xelement1.Element("data").Attribute("encoding").Value));
-                            var buffer1 = Convert.FromBase64String(xelement1.Element("data").Value);
-                            if (xelement1.Element("data").Attribute("compression") == null)
-                            {
-                                var startIndex = 0;
-                                while (startIndex < buffer1.Length)
-                                {
-                                    list3.Add(BitConverter.ToUInt32(buffer1, startIndex));
-                                    startIndex += 4;
-                                }
-                            }
-                            else if (xelement1.Element("data").Attribute("compression").Value.Equals("gzip"))
-                            {
-                                var gzipStream = new GZipStream(new MemoryStream(buffer1), CompressionMode.Decompress);
-                                var buffer2 = new byte[4];
-                                while (gzipStream.Read(buffer2, 0, buffer2.Length) == buffer2.Length)
-                                    list3.Add(BitConverter.ToUInt32(buffer2, 0));
-                            }
-                            else
-                            {
-                                if (!xelement1.Element("data").Attribute("compression").Value.Equals("zlib"))
-                                    throw new NotSupportedException(string.Format("Compression '{0}' not supported.  XTiled supports gzip or zlib", xelement1.Element("data").Attribute("compression").Value));
-                                var memoryStream = new MemoryStream(buffer1);
-                                memoryStream.ReadByte();
-                                memoryStream.ReadByte();
-                                var deflateStream = new DeflateStream(memoryStream, CompressionMode.Decompress);
-                                var buffer2 = new byte[4];
-                                while (deflateStream.Read(buffer2, 0, buffer2.Length) == buffer2.Length)
-                                    list3.Add(BitConverter.ToUInt32(buffer2, 0));
-                            }
+                            throw new NotSupportedException(
+                                string.Format("Encoding '{0}' not supported.  XTiled supports csv or base64",
+                                    lElem.Element("data").Attribute("encoding").Value));
                         }
                     }
                     else
+                        // parse xml formatted data
+                        gids.AddRange(lElem.Element("data").Elements("tile").Select(tElem => Convert.ToUInt32(tElem.Attribute("gid").Value)));
+
+                    for (var i = 0; i < gids.Count; i++)
                     {
-                        list3.AddRange(xelement1.Element("data").Elements("tile").Select(xelement2 => Convert.ToUInt32(xelement2.Attribute("gid").Value)));
-                    }
-                    for (var index1 = 0; index1 < list3.Count; ++index1)
-                    {
-                        var tileData = new TileData();
-                        var index2 = list3[index1] & 536870911U;
-                        tileData.SourceID = dictionary[index2];
-                        if (tileData.SourceID >= 0)
+                        var td = new TileData();
+                        var id = gids[i] & ~(_flippedHorizontallyFlag | _flippedVerticallyFlag | _flippedDiagonallyFlag);
+                        td.SourceId = gid2Id[id];
+
+                        if (td.SourceId < 0)
+                            continue;
+
+                        var isFlippedHorizontally = Convert.ToBoolean(gids[i] & _flippedHorizontallyFlag);
+                        var isFlippedVertically = Convert.ToBoolean(gids[i] & _flippedVerticallyFlag);
+                        var isFlippedDiagonally = Convert.ToBoolean(gids[i] & _flippedDiagonallyFlag);
+
+                        if (isFlippedHorizontally && isFlippedDiagonally)
                         {
-                            var flag1 = Convert.ToBoolean(list3[index1] & int.MinValue);
-                            var flag2 = Convert.ToBoolean(list3[index1] & 1073741824U);
-                            var flag3 = Convert.ToBoolean(list3[index1] & 536870912U);
-                            if (flag3)
-                            {
-                                tileData.Rotation = 1.570796f;
-                                flag1 = false;
-                            }
-                            else
-                                tileData.Rotation = 0.0f;
-                            tileData.Effects = !flag2 || !flag1 ? (!flag2 ? (!flag1 ? 0 : (SpriteEffects)1) : (SpriteEffects)2) : (SpriteEffects)3;
-                            tileData.Target.Width = list1[tileData.SourceID].Source.Width;
-                            tileData.Target.Height = list1[tileData.SourceID].Source.Height;
-                            if (map.Orientation == MapOrientation.Orthogonal)
-                            {
-                                var index3 = index1 % map.Width;
-                                var index4 = index1 / map.Width;
-                                tileData.Target.X = (index3 * map.TileWidth + Convert.ToInt32(list1[tileData.SourceID].Origin.X) + map.Tilesets[list1[tileData.SourceID].TilesetID].TileOffsetX);
-                                tileData.Target.Y = (index4 * map.TileHeight + Convert.ToInt32(list1[tileData.SourceID].Origin.Y) + map.Tilesets[list1[tileData.SourceID].TilesetID].TileOffsetY);
-                                // ISSUE: explicit reference operation
-                                // ISSUE: variable of a reference type
-                                var local1 = @tileData.Target;
-                                // ISSUE: explicit reference operation
-                                var num1 = local1.Y + (map.TileHeight - tileData.Target.Height);
-                                // ISSUE: explicit reference operation
-                                local1.Y = num1;
-                                if (flag3 && tileData.Target.Width % 2 == 1)
+                            td.Rotation = MathHelper.PiOver2;
+                            // this works, not 100% why (we are rotating instead of diag flipping, so I guess that's a clue)
+                            isFlippedHorizontally = false;
+                        }
+                        else if (isFlippedVertically && isFlippedDiagonally)
+                        {
+                            td.Rotation = -MathHelper.PiOver2;
+                            // this works, not 100% why (we are rotating instead of diag flipping, so I guess that's a clue)
+                            isFlippedVertically = false;
+                        }
+                        else
+                            td.Rotation = 0;
+
+                        if (isFlippedVertically && isFlippedHorizontally)
+                            td.Effects = SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically;
+                        else if (isFlippedVertically)
+                            td.Effects = SpriteEffects.FlipVertically;
+                        else if (isFlippedHorizontally)
+                            td.Effects = SpriteEffects.FlipHorizontally;
+                        else
+                            td.Effects = SpriteEffects.None;
+
+                        td.Target.Width = mapTiles[td.SourceId].Source.Width;
+                        td.Target.Height = mapTiles[td.SourceId].Source.Height;
+
+                        switch (map.Orientation)
+                        {
+                            case MapOrientation.Orthogonal:
                                 {
-                                    // ISSUE: explicit reference operation
-                                    // ISSUE: variable of a reference type
-                                    var local2 = @tileData.Target;
-                                    // ISSUE: explicit reference operation
-                                    var num2 = local2.X + 1;
-                                    // ISSUE: explicit reference operation
-                                    local2.X = num2;
+                                    var x = i % map.Width;
+                                    var y = i / map.Width;
+                                    td.Target.X = x * map.TileWidth + Convert.ToInt32(mapTiles[td.SourceId].Origin.X) + map.Tilesets[mapTiles[td.SourceId].TilesetId].TileOffsetX;
+                                    td.Target.Y = y * map.TileHeight + Convert.ToInt32(mapTiles[td.SourceId].Origin.Y) + map.Tilesets[mapTiles[td.SourceId].TilesetId].TileOffsetY;
+                                    td.Target.Y += map.TileHeight - td.Target.Height;
+
+                                    // adjust for off center origin in odd tiles sizes
+                                    if (isFlippedDiagonally && td.Target.Width % 2 == 1)
+                                        td.Target.X += 1;
+
+                                    tiles[x][y] = td;
                                 }
-                                tileDataArray[index3][index4] = tileData;
-                            }
-                            else if (map.Orientation == MapOrientation.Isometric)
-                            {
-                                var index3 = map.Height + index1 % map.Width - (index1 / map.Width + 1);
-                                var index4 = index1 - index1 / map.Width * map.Width + index1 / map.Width;
-                                tileData.Target.X = (index3 * map.TileWidth + Convert.ToInt32(list1[tileData.SourceID].Origin.X) + map.Tilesets[list1[tileData.SourceID].TilesetID].TileOffsetX);
-                                tileData.Target.Y = (index4 * map.TileHeight + Convert.ToInt32(list1[tileData.SourceID].Origin.Y) + map.Tilesets[list1[tileData.SourceID].TilesetID].TileOffsetY);
-                                // ISSUE: explicit reference operation
-                                // ISSUE: variable of a reference type
-                                var local1 = @tileData.Target;
-                                // ISSUE: explicit reference operation
-                                var num1 = local1.Y + (map.TileHeight - tileData.Target.Height);
-                                // ISSUE: explicit reference operation
-                                local1.Y = num1;
-                                tileData.Target.X = (tileData.Target.X / 2 + map.TileWidth / 4);
-                                tileData.Target.Y = (tileData.Target.Y / 2 + map.TileHeight / 4);
-                                if (flag3 && tileData.Target.Width % 2 == 1)
+                                break;
+                            case MapOrientation.Isometric:
                                 {
-                                    // ISSUE: explicit reference operation
-                                    // ISSUE: variable of a reference type
-                                    var local2 = @tileData.Target;
-                                    // ISSUE: explicit reference operation
-                                    var num2 = local2.X + 1;
-                                    // ISSUE: explicit reference operation
-                                    local2.X = num2;
+                                    var x = map.Height + i % map.Width - (1 * i / map.Width + 1);
+                                    var y = i - i / map.Width * map.Width + i / map.Width;
+                                    td.Target.X = x * map.TileWidth + Convert.ToInt32(mapTiles[td.SourceId].Origin.X) + map.Tilesets[mapTiles[td.SourceId].TilesetId].TileOffsetX;
+                                    td.Target.Y = y * map.TileHeight + Convert.ToInt32(mapTiles[td.SourceId].Origin.Y) + map.Tilesets[mapTiles[td.SourceId].TilesetId].TileOffsetY;
+                                    td.Target.Y += map.TileHeight - td.Target.Height;
+                                    td.Target.X = td.Target.X / 2 + map.TileWidth / 4;
+                                    td.Target.Y = td.Target.Y / 2 + map.TileHeight / 4;
+
+                                    // adjust for off center origin in odd tiles sizes
+                                    if (isFlippedDiagonally && td.Target.Width % 2 == 1)
+                                        td.Target.X += 1;
+
+                                    tiles[x][y] = td;
                                 }
-                                tileDataArray[index3][index4] = tileData;
-                            }
+                                break;
                         }
                     }
                 }
-                tileLayer.Tiles = tileDataArray;
-                tileLayerList.Add(tileLayer);
+                l.Tiles = tiles;
+
+                layers.Add(l);
             }
-            map.TileLayers = tileLayerList;
-            map.SourceTiles = list1.ToArray();
-            var objectLayerList = new ObjectLayerList();
-            foreach (var xelement1 in input.Document.Root.Elements("objectgroup"))
+            map.TileLayers = layers;
+            map.SourceTiles = mapTiles.ToArray();
+
+            var oLayers = new ObjectLayerList();
+            foreach (var olElem in input.Document.Root.Elements("objectgroup"))
             {
-                var objectLayer = new ObjectLayer
+                var ol = new ObjectLayer
                 {
-                    Name = xelement1.Attribute("name") == null ? null : xelement1.Attribute("name").Value,
-                    Opacity = xelement1.Attribute("opacity") == null ? 1f : Convert.ToSingle(xelement1.Attribute("opacity").Value),
-                    Visible = xelement1.Attribute("visible") == null || xelement1.Attribute("visible").Equals("1"),
+                    Name = olElem.Attribute("name") == null ? null : olElem.Attribute("name").Value,
+                    Opacity = olElem.Attribute("opacity") == null ? 1.0f : Convert.ToSingle(olElem.Attribute("opacity").Value),
+                    Visible = olElem.Attribute("visible") == null,
                     OpacityColor = Color.White
                 };
-                // ISSUE: explicit reference operation
-                @objectLayer.OpacityColor.A = Convert.ToByte(byte.MaxValue * objectLayer.Opacity);
-                objectLayer.Color = new Color?();
-                if (xelement1.Attribute("color") != null)
+
+                ol.OpacityColor.A = Convert.ToByte(255.0f * ol.Opacity);
+
+                ol.Color = null;
+                if (olElem.Attribute("color") != null)
                 {
-                    var color = ColorTranslator.FromHtml("#" + xelement1.Attribute("color").Value.TrimStart('#'));
-                    // ISSUE: explicit reference operation
-                    objectLayer.Color = new Color(color.R, color.G, color.B, @objectLayer.OpacityColor.A);
+                    var sdc = ColorTranslator.FromHtml("#" + olElem.Attribute("color").Value.TrimStart('#'));
+                    ol.Color = new Color(sdc.R, sdc.G, sdc.B, ol.OpacityColor.A);
                 }
-                objectLayer.Properties = new Dictionary<string, Property>();
-                if (xelement1.Element("properties") != null)
+
+                ol.Properties = new Dictionary<string, Property>();
+                if (olElem.Element("properties") != null)
+                    foreach (var pElem in olElem.Element("properties").Elements("property"))
+                        ol.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+
+                var objects = new List<MapObject>();
+                foreach (var oElem in olElem.Elements("object"))
                 {
-                    foreach (var xelement2 in xelement1.Element("properties").Elements("property"))
-                        objectLayer.Properties.Add(xelement2.Attribute("name").Value, Property.Create(xelement2.Attribute("value").Value));
-                }
-                var list3 = new List<MapObject>();
-                foreach (var xelement2 in xelement1.Elements("object"))
-                {
-                    var mapObject = new MapObject
+                    var o = new MapObject
                     {
-                        Name = xelement2.Attribute("name") == null ? null : xelement2.Attribute("name").Value,
-                        Type = xelement2.Attribute("type") == null ? null : xelement2.Attribute("type").Value,
-                        Bounds = {
-                            X = xelement2.Attribute("x") == null ? 0 : Convert.ToInt32(xelement2.Attribute("x").Value),
-                            Y = xelement2.Attribute("y") == null ? 0 : Convert.ToInt32(xelement2.Attribute("y").Value),
-                            Width = xelement2.Attribute("width") == null ? 0 : Convert.ToInt32(xelement2.Attribute("width").Value),
-                            Height = xelement2.Attribute("height") == null ? 0 : Convert.ToInt32(xelement2.Attribute("height").Value)
-                        }
+                        Name = oElem.Attribute("name") == null ? null : oElem.Attribute("name").Value,
+                        Type = oElem.Attribute("type") == null ? null : oElem.Attribute("type").Value,
+                        Bounds =
+                        {
+                            X = oElem.Attribute("x") == null ? 0 : Convert.ToInt32(oElem.Attribute("x").Value),
+                            Y = oElem.Attribute("y") == null ? 0 : Convert.ToInt32(oElem.Attribute("y").Value),
+                            Width =
+                                oElem.Attribute("width") == null ? 0 : Convert.ToInt32(oElem.Attribute("width").Value),
+                            Height =
+                                oElem.Attribute("height") == null ? 0 : Convert.ToInt32(oElem.Attribute("height").Value)
+                        },
+                        TileId = oElem.Attribute("gid") == null ? null : (int?) gid2Id[Convert.ToUInt32(oElem.Attribute("gid").Value)],
+                        Visible = oElem.Attribute("visible") == null
                     };
-                    mapObject.TileID = xelement2.Attribute("gid") == null ? new int?() : dictionary[Convert.ToUInt32(xelement2.Attribute("gid").Value)];
-                    mapObject.Visible = xelement2.Attribute("visible") == null || xelement2.Attribute("visible").Equals("1");
-                    if (mapObject.TileID.HasValue)
+
+                    if (o.TileId.HasValue)
                     {
-                        // ISSUE: explicit reference operation
-                        // ISSUE: variable of a reference type
-                        var local1 = @mapObject.Bounds;
-                        // ISSUE: explicit reference operation
-                        var num1 = local1.X + Convert.ToInt32(list1[mapObject.TileID.Value].Origin.X);
-                        // ISSUE: explicit reference operation
-                        local1.X = num1;
-                        // ISSUE: explicit reference operation
-                        // ISSUE: variable of a reference type
-                        var local2 = @mapObject.Bounds;
-                        // ISSUE: explicit reference operation
-                        var num2 = local2.Y - Convert.ToInt32(list1[mapObject.TileID.Value].Origin.Y);
-                        // ISSUE: explicit reference operation
-                        local2.Y = num2;
-                        mapObject.Bounds.Width = map.SourceTiles[mapObject.TileID.Value].Source.Width;
-                        mapObject.Bounds.Height = map.SourceTiles[mapObject.TileID.Value].Source.Height;
+                        o.Bounds.X += Convert.ToInt32(mapTiles[o.TileId.Value].Origin.X); // +map.Tilesets[mapTiles[o.TileID.Value].TilesetID].TileOffsetX;
+                        o.Bounds.Y -= Convert.ToInt32(mapTiles[o.TileId.Value].Origin.Y); // +map.Tilesets[mapTiles[o.TileID.Value].TilesetID].TileOffsetY;
+                        o.Bounds.Width = map.SourceTiles[o.TileId.Value].Source.Width;
+                        o.Bounds.Height = map.SourceTiles[o.TileId.Value].Source.Height;
                     }
-                    mapObject.Properties = new Dictionary<string, Property>();
-                    if (xelement2.Element("properties") != null)
+
+                    o.Properties = new Dictionary<string, Property>();
+                    if (oElem.Element("properties") != null)
+                        foreach (var pElem in oElem.Element("properties").Elements("property"))
+                            o.Properties.Add(pElem.Attribute("name").Value, Property.Create(pElem.Attribute("value").Value));
+
+                    o.Polygon = null;
+                    if (oElem.Element("polygon") != null)
                     {
-                        foreach (var xelement3 in xelement2.Element("properties").Elements("property"))
-                            mapObject.Properties.Add(xelement3.Attribute("name").Value, Property.Create(xelement3.Attribute("value").Value));
+                        var points = oElem
+                            .Element("polygon")
+                            .Attribute("points")
+                            .Value
+                            .Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                            .Select(point => point.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                            .Select(coord => new Point(o.Bounds.X + Convert.ToInt32(coord[0]), o.Bounds.Y + Convert.ToInt32(coord[1])))
+                            .ToList();
+
+                        points.Add(points.First()); // connect the last point to the first and close the polygon
+                        o.Polygon = Polygon.FromPoints(points);
+                        o.Bounds = o.Polygon.Bounds;
                     }
-                    mapObject.Polygon = null;
-                    if (xelement2.Element("polygon") != null)
+
+                    o.Polyline = null;
+                    if (oElem.Element("polyline") != null)
                     {
-                        var list4 = new List<Point>();
-                        foreach (var str in xelement2.Element("polygon").Attribute("points").Value.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            var strArray = str.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                            list4.Add(new Point(mapObject.Bounds.X + Convert.ToInt32(strArray[0]), mapObject.Bounds.Y + Convert.ToInt32(strArray[1])));
-                        }
-                        list4.Add(list4.First());
-                        mapObject.Polygon = Polygon.FromPoints(list4);
-                        mapObject.Bounds = mapObject.Polygon.Bounds;
+                        var points = oElem
+                            .Element("polyline")
+                            .Attribute("points")
+                            .Value
+                            .Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                            .Select(point => point.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                            .Select(coord => new Point(o.Bounds.X + Convert.ToInt32(coord[0]), o.Bounds.Y + Convert.ToInt32(coord[1])))
+                            .ToList();
+
+                        o.Polyline = Polyline.FromPoints(points);
+                        o.Bounds = o.Polyline.Bounds;
                     }
-                    mapObject.Polyline = null;
-                    if (xelement2.Element("polyline") != null)
-                    {
-                        var list4 = new List<Point>();
-                        foreach (var str in xelement2.Element("polyline").Attribute("points").Value.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            var strArray = str.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                            list4.Add(new Point(mapObject.Bounds.X + Convert.ToInt32(strArray[0]), mapObject.Bounds.Y + Convert.ToInt32(strArray[1])));
-                        }
-                        mapObject.Polyline = Polyline.FromPoints(list4);
-                        mapObject.Bounds = mapObject.Polyline.Bounds;
-                    }
-                    list3.Add(mapObject);
+
+                    objects.Add(o);
                 }
-                objectLayer.MapObjects = list3.ToArray();
-                objectLayerList.Add(objectLayer);
+                ol.MapObjects = objects.ToArray();
+
+                oLayers.Add(ol);
             }
-            map.ObjectLayers = objectLayerList;
-            var num4 = 0;
-            var num5 = 0;
-            var list5 = new List<LayerInfo>();
-            foreach (var xelement in input.Document.Root.Elements())
+            map.ObjectLayers = oLayers;
+
+            int layerId = 0, objectId = 0;
+            var info = new List<LayerInfo>();
+            foreach (var elem in input.Document.Root.Elements())
             {
-                if (xelement.Name.LocalName.Equals("layer"))
-                    list5.Add(new LayerInfo
-                    {
-                        ID = num4++,
-                        LayerType = LayerType.TileLayer
-                    });
-                else if (xelement.Name.LocalName.Equals("objectgroup"))
-                    list5.Add(new LayerInfo
-                    {
-                        ID = num5++,
-                        LayerType = LayerType.ObjectLayer
-                    });
+                if (elem.Name.LocalName.Equals("layer"))
+                    info.Add(new LayerInfo { Id = layerId++, LayerType = LayerType.TileLayer });
+                else if (elem.Name.LocalName.Equals("objectgroup"))
+                    info.Add(new LayerInfo { Id = objectId++, LayerType = LayerType.ObjectLayer });
             }
-            map.LayerOrder = list5.ToArray();
-            Thread.CurrentThread.CurrentCulture = currentCulture;
+            map.LayerOrder = info.ToArray();
+
+            Thread.CurrentThread.CurrentCulture = culture;
             return map;
         }
     }

@@ -14,36 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin map.tmx
-/importer:TmxContentImporter
-/processor:TmxContentProcessor
-/processorParam:LoadTextures=True
-/processorParam:TextureFormat=Color
-/processorParam:PremultiplyAlpha=True
-/build:map.tmx
-
-#begin alive.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:TextureFormat=Color
-/build:alive.png
-
-#begin dead.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:TextureFormat=Color
-/build:dead.png
-
 #begin mapTexture.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -76,4 +46,34 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:TextureFormat=Color
 /build:tower.png
+
+#begin bullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:TextureFormat=Color
+/build:bullet.png
+
+#begin grass.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:TextureFormat=Color
+/build:grass.png
+
+#begin 01.tmx
+/importer:TmxContentImporter
+/processor:TmxContentProcessor
+/processorParam:LoadTextures=True
+/processorParam:TextureFormat=Color
+/processorParam:PremultiplyAlpha=True
+/build:01.tmx
 
