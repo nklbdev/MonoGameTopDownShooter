@@ -40,7 +40,6 @@ namespace GameProject
         /// all of your content.
         /// </summary>
         private Ticker _physicsTicker;
-        private Ticker _inputTicker;
         private Ticker _logicTicker;
         private Ticker _drawingTicker;
         protected override void LoadContent()
@@ -48,7 +47,6 @@ namespace GameProject
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _physicsTicker = new Ticker();
-            _inputTicker = new Ticker();
             _logicTicker = new Ticker();
             _drawingTicker = new Ticker();
 
@@ -56,7 +54,7 @@ namespace GameProject
                 .Bind<ILevelLoader>(c => new LevelLoader(Content, c.Resolve<IMapObjectProcessorFactory>()))
                 .Bind<IMapObjectProcessorFactory>(c => new MapObjectProcessorFactory());
 
-            container.Resolve<ILevelLoader>().LoadLevel(_physicsTicker, _inputTicker, _logicTicker, _drawingTicker, _spriteBatch, "01");
+            container.Resolve<ILevelLoader>().LoadLevel(_physicsTicker, _logicTicker, _drawingTicker, _spriteBatch, "01");
         }
 
 
@@ -76,7 +74,6 @@ namespace GameProject
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            _inputTicker.Tick(gameTime);
             _logicTicker.Tick(gameTime);
             _physicsTicker.Tick(gameTime);
             base.Update(gameTime);
@@ -90,76 +87,11 @@ namespace GameProject
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            //_spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend,
-            //    null,
-            //    null,
-            //    null,
-            //    null,
-            //    _worldCamera.Matrix);
             _spriteBatch.Begin();
             _drawingTicker.Tick(gameTime);
             _spriteBatch.End();
 
-            //
-
             base.Draw(gameTime);
         }
-
-        //private Camera _hudCamera;
-        //private Camera _worldCamera;
     }
-
-    //public class Camera
-    //{
-    //    public Matrix Matrix { get; set; }
-
-
-    //    private float _zoom; // Camera Zoom
-    //    private Matrix _transform; // Matrix Transform
-    //    private Vector2 _position; // Camera Position
-    //    private float _rotation; // Camera Rotation
-
-    //    public Camera()
-    //    {
-    //        _zoom = 1.0f;
-    //        _rotation = 0.0f;
-    //        _position = Vector2.Zero;
-    //    }
-
-    //    // Sets and gets zoom
-    //    public float Zoom
-    //    {
-    //        get { return _zoom; }
-    //        set { _zoom = value; if (_zoom < 0.1f) _zoom = 0.1f; } // Negative zoom will flip image
-    //    }
-
-    //    public float Rotation
-    //    {
-    //        get { return _rotation; }
-    //        set { _rotation = value; }
-    //    }
-
-    //    // Auxiliary function to move the camera
-    //    public void Move(Vector2 amount)
-    //    {
-    //        _position += amount;
-    //    }
-
-    //    // Get set position
-    //    public Vector2 Position
-    //    {
-    //        get { return _position; }
-    //        set { _position = value; }
-    //    }
-
-    //    public Matrix get_transformation(GraphicsDevice graphicsDevice)
-    //    {
-    //        _transform =       // Thanks to o KB o for this solution
-    //          Matrix.CreateTranslation(new Vector3(-_position.X, -_position.Y, 0)) *
-    //                                     Matrix.CreateRotationZ(Rotation) *
-    //                                     Matrix.CreateScale(new Vector3(Zoom, Zoom, 1)) *
-    //                                     Matrix.CreateTranslation(new Vector3(ViewportWidth * 0.5f, ViewportHeight * 0.5f, 0));
-    //        return _transform;
-    //    }
-    //}
 }

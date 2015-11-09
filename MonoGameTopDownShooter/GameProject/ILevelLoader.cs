@@ -4,6 +4,6 @@ namespace GameProject
 {
     public interface ILevelLoader
     {
-        void LoadLevel(Ticker physicsTicker, Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, SpriteBatch spriteBatch, string resourceName);
+        void LoadLevel(Ticker physicsTicker, Ticker logicTicker, Ticker drawingTicker, SpriteBatch spriteBatch, string resourceName);
     }
 }

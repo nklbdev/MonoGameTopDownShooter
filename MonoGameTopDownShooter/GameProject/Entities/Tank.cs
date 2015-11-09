@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities
 {
@@ -9,6 +10,7 @@ namespace GameProject.Entities
         public ITankArmor Armor { get; private set; }
 
         public Vector2 ControlColumnPosition { get; set; }
+        public event Action<ITank, DeathReason> Died;
 
         public Tank(ITankBody body, ITankTower tower)
         {

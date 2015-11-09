@@ -8,8 +8,8 @@ namespace GameProject.Views
 {
     public class MapView : Entity
     {
-        private Map _map;
-        private SpriteBatch _spriteBatch;
+        private readonly Map _map;
+        private readonly SpriteBatch _spriteBatch;
 
         public MapView(Map map, SpriteBatch spriteBatch)
         {
@@ -23,7 +23,7 @@ namespace GameProject.Views
 
         public override void Update(GameTime gameTime)
         {
-            _map.Draw(_spriteBatch, new Rectangle(0, 0, 32*32, 32*32));
+            _map.Draw(_spriteBatch, new Rectangle(0, 0, 32*32, 32*32), true);
         }
     }
 }

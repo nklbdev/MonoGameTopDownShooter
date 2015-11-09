@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities
@@ -8,5 +9,6 @@ namespace GameProject.Entities
         ITankTower Tower { get; }
         ITankArmor Armor { get; }
         Vector2 ControlColumnPosition { get; set; }
+        event Action<ITank, DeathReason> Died;
     }
 }

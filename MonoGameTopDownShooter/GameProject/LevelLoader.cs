@@ -19,7 +19,7 @@ namespace GameProject
             _mapObjectProcessorFactory = mapObjectProcessorFactory;
         }
 
-        public void LoadLevel(Ticker physicsTicker, Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, SpriteBatch spriteBatch, string resourceName)
+        public void LoadLevel(Ticker physicsTicker, Ticker logicTicker, Ticker drawingTicker, SpriteBatch spriteBatch, string resourceName)
         {
             var map = _contentManager.Load<Map>(resourceName);
 
@@ -29,7 +29,7 @@ namespace GameProject
             var world = new World(Vector2.Zero);
             new PhysicsWorldUpdater(world).Ticker = physicsTicker;
 
-            var mapObjectProcessor = _mapObjectProcessorFactory.Create(inputTicker, logicTicker, drawingTicker, world, _contentManager, spriteBatch);
+            var mapObjectProcessor = _mapObjectProcessorFactory.Create(logicTicker, drawingTicker, world, _contentManager, spriteBatch);
 
             foreach (var mapObject in map.ObjectLayers.SelectMany(layer => layer.MapObjects))
                 mapObjectProcessor.Process(mapObject);

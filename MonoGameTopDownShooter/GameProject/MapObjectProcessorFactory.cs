@@ -6,9 +6,9 @@ namespace GameProject
 {
     public class MapObjectProcessorFactory : IMapObjectProcessorFactory
     {
-        public IMapObjectProcessor Create(Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch)
+        public IMapObjectProcessor Create(Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            return new MapObjectProcessor(inputTicker, logicTicker, drawingTicker, world, contentManager, spriteBatch);
+            return new MapObjectProcessor(logicTicker, drawingTicker, world, contentManager, spriteBatch);
         }
     }
 }

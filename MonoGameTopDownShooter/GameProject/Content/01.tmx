@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" nextobjectid="15">
  <tileset firstgid="1" name="terrain" tilewidth="32" tileheight="32">
   <image source="terrain.png" width="512" height="512"/>
  </tileset>
@@ -2061,10 +2061,10 @@
  </layer>
  <layer name="hiwall" width="32" height="32">
   <data>
-   <tile gid="8"/>
-   <tile gid="2684354568"/>
-   <tile gid="3221225480"/>
-   <tile gid="1610612744"/>
+   <tile gid="25"/>
+   <tile gid="25"/>
+   <tile gid="25"/>
+   <tile gid="25"/>
    <tile gid="25"/>
    <tile gid="25"/>
    <tile gid="25"/>
@@ -2372,10 +2372,10 @@
    <tile gid="2684354569"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="8"/>
+   <tile gid="9"/>
+   <tile gid="9"/>
+   <tile gid="2684354568"/>
    <tile gid="0"/>
    <tile gid="1610612745"/>
    <tile gid="25"/>
@@ -2404,10 +2404,10 @@
    <tile gid="2684354569"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="1610612744"/>
+   <tile gid="3221225481"/>
+   <tile gid="3221225481"/>
+   <tile gid="3221225480"/>
    <tile gid="0"/>
    <tile gid="1610612745"/>
    <tile gid="25"/>
@@ -3088,21 +3088,30 @@
   </data>
  </layer>
  <objectgroup name="walls">
-  <object type="Wall" x="48" y="496">
+  <object id="1" type="Wall" x="48" y="496">
    <polyline points="0,0 0,-208 144,-352 448,-352 448,-320 640,-320 640,-448 864,-448 864,0 608,0 608,-208 592,-224 496,-224 480,-208 480,-176 512,-144 512,-112 496,-96 432,-96 416,-80 416,0 0,0"/>
   </object>
-  <object type="Enemy" x="756" y="192"/>
-  <object type="Enemy" x="788" y="384"/>
-  <object type="Enemy" x="436" y="224"/>
-  <object type="Enemy" x="372" y="384"/>
-  <object type="Enemy" x="308" y="192"/>
-  <object type="Enemy" x="148" y="384"/>
-  <object type="Enemy" x="724" y="448"/>
-  <object type="Enemy" x="852" y="448"/>
-  <object type="Enemy" x="852" y="96"/>
-  <object type="Enemy" x="852" y="256"/>
+  <object id="2" type="Enemy" x="756" y="192"/>
+  <object id="3" type="Enemy" x="788" y="384"/>
+  <object id="4" type="Enemy" x="436" y="224"/>
+  <object id="5" type="Enemy" x="372" y="384"/>
+  <object id="6" type="Enemy" x="308" y="192"/>
+  <object id="7" type="Enemy" x="148" y="384"/>
+  <object id="8" type="Enemy" x="724" y="448"/>
+  <object id="9" type="Enemy" x="852" y="448"/>
+  <object id="10" type="Enemy" x="852" y="96"/>
+  <object id="11" type="Enemy" x="852" y="256"/>
+  <object id="14" type="Wall" x="752" y="304">
+   <polyline points="0,0 96,0 96,32 0,32 0,0"/>
+  </object>
  </objectgroup>
  <objectgroup name="entities">
-  <object type="Player" x="224" y="320"/>
+  <object id="12" type="Player" x="224" y="320"/>
+  <object id="13" type="ItemSpawner" x="324" y="320">
+   <properties>
+    <property name="ItemType" value="RocketLauncher"/>
+    <property name="RespawnTime" value="30"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

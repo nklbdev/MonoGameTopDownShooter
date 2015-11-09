@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DeathReason.cs" />
     <Compile Include="Entities\Bullets\SimpleBullet.cs" />
     <Compile Include="Entities\IPivot.cs" />
     <Compile Include="Entities\IPivoted.cs" />
@@ -48,9 +49,17 @@
     <Compile Include="Entities\RotatingDirection.cs" />
     <Compile Include="Entities\TankBody.cs" />
     <Compile Include="Entities\TankTower.cs" />
+    <Compile Include="IMyDrawable.cs" />
+    <Compile Include="IMyUpdateable.cs" />
     <Compile Include="IObservableDisposable.cs" />
-    <Compile Include="Spawners\Canon.cs" />
+    <Compile Include="IUpdater.cs" />
+    <Compile Include="MatchResults.cs" />
+    <Compile Include="Entities\Cannon.cs" />
+    <Compile Include="Spawners\TankSpawener.cs" />
+    <Compile Include="Spawners\TankSpawnerController.cs" />
+    <Compile Include="SpawnPoint.cs" />
     <Compile Include="Vector2Helpers.cs" />
+    <Compile Include="Views\WallView.cs" />
     <Compile Include="Views\MapView.cs" />
     <Compile Include="Views\BulletView.cs" />
     <Compile Include="Entities\Entity.cs" />

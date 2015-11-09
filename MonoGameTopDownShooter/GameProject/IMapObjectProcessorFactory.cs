@@ -6,6 +6,6 @@ namespace GameProject
 {
     public interface IMapObjectProcessorFactory
     {
-        IMapObjectProcessor Create(Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch);
+        IMapObjectProcessor Create(Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch);
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameProject.Spawners
 {
-    public class BulletSpawner : ISpawner
+    public class Cannon : ISpawner
     {
         private readonly Ticker _logicTicker;
         private readonly Ticker _drawingTicker;
@@ -16,7 +16,7 @@ namespace GameProject.Spawners
         private readonly SpriteBatch _spriteBatch;
         private readonly Body _ignoredBody;
 
-        public BulletSpawner(Ticker logicTicker, Ticker drawingTicker, World world, Texture2D texture, SpriteBatch spriteBatch, Body ignoredBody)
+        public Cannon(Ticker logicTicker, Ticker drawingTicker, World world, Texture2D texture, SpriteBatch spriteBatch, Body ignoredBody)
         {
             _logicTicker = logicTicker;
             _drawingTicker = drawingTicker;

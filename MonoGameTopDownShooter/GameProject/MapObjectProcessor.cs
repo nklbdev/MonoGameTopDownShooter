@@ -15,7 +15,6 @@ namespace GameProject
     public class MapObjectProcessor : IMapObjectProcessor
     {
         private readonly World _world;
-        private readonly Ticker _inputTicker;
         private readonly Ticker _logicTicker;
         private readonly Ticker _drawingTicker;
         private readonly Texture2D _bulletTexture;
@@ -23,10 +22,9 @@ namespace GameProject
         private readonly Texture2D _towerTexture;
         private readonly SpriteBatch _spriteBatch;
 
-        public MapObjectProcessor(Ticker inputTicker, Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch)
+        public MapObjectProcessor(Ticker logicTicker, Ticker drawingTicker, World world, ContentManager contentManager, SpriteBatch spriteBatch)
         {
             _world = world;
-            _inputTicker = inputTicker;
             _logicTicker = logicTicker;
             _drawingTicker = drawingTicker;
             _bodyTexture = contentManager.Load<Texture2D>("body");
@@ -39,8 +37,7 @@ namespace GameProject
         {
             if (mapObject.Type == "Wall")
             {
-                //var body = new Body(_world, new Vector2((mapObject.Bounds.X - 32) / 10f, (mapObject.Bounds.Y - 32)/10f), 0, BodyType.Static, this) { FixedRotation = true };
-                var body = new Body(_world, new Vector2((mapObject.Bounds.X - 48) / 10f, (mapObject.Bounds.Y - 48)/10f), 0, BodyType.Static, this) { FixedRotation = true };
+                var body = new Body(_world, Vector2.Zero, 0, BodyType.Static, this) { FixedRotation = true };
                 var vertices = new Vertices(mapObject.Polyline.Points.Select(p => new Vector2(p.X/10f, p.Y/10f)));
                 FixtureFactory.AttachChainShape(vertices, body);
             }
@@ -50,7 +47,7 @@ namespace GameProject
                 FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
 
                 var tankBody = new TankBody(body);
-                var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
+                var tankTower = new TankTower(tankBody, new Cannon(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
 
                 var tank = new Tank(tankBody, tankTower) { Ticker = _logicTicker };
                 body.UserData = tank;
@@ -63,7 +60,7 @@ namespace GameProject
                 FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
 
                 var tankBody = new TankBody(body);
-                var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
+                var tankTower = new TankTower(tankBody, new Cannon(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
 
                 var tank = new Tank(tankBody, tankTower) { Ticker = _logicTicker };
                 body.UserData = tank;
