@@ -1,6 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using FarseerPhysics.Common;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
+using GameProject.Entities;
+using GameProject.Views;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SimplestIocContainer;
+using MonoGameProxies;
+using XTiled;
 
 namespace GameProject
 {
@@ -9,16 +16,20 @@ namespace GameProject
     /// </summary>
     public class Game1 : Game
     {
-        private readonly GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
+        //private readonly GraphicsDeviceManager _graphics;
+        //private SpriteBatch _spriteBatch;
+        private IGameState _gameState;
+        private World _world;
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            _graphics.PreferredBackBufferWidth = 1024;
-            _graphics.PreferredBackBufferHeight = 640;
-            _graphics.IsFullScreen = true;
+            new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 1024,
+                PreferredBackBufferHeight = 640,
+                IsFullScreen = true
+            };
         }
 
         /// <summary>
@@ -29,32 +40,99 @@ namespace GameProject
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
             IsMouseVisible = true;
+
+            var worldSpriteBatch = new SpriteBatchProxy(new SpriteBatch(GraphicsDevice));
+            var hudSpriteBatch = new SpriteBatchProxy(new SpriteBatch(GraphicsDevice));
+            _world = new World(Vector2.Zero);
+            var physicsUpdater = new WorldUpdateableAdapter(_world);
+            var controllersProcessor = new EntityProcessor<IController>();
+            var controllersUpdater = new EntityUpdater<IController>(controllersProcessor);
+            var modelsProcessor = new EntityProcessor<IModel>();
+            var modelsUpdater = new EntityUpdater<IModel>(modelsProcessor);
+            var viewsProcessor = new EntityProcessor<IView>();
+            var viewsUpdater = new EntityUpdater<IView>(viewsProcessor);
+
+            var worldMapViewProcessor = new EntityProcessor<IView>();
+            var worldCharacterViewProcessor = new EntityProcessor<IView>();
+
+            var worldViewCamera = new Camera(worldSpriteBatch) { ViewProcessors = new[] { worldMapViewProcessor, worldCharacterViewProcessor } };
+            var hudViewCamera = new Camera(hudSpriteBatch);
+            var updateStepMultiplexer = new UpdationMultiplexer { Updateables = { controllersUpdater, modelsUpdater, physicsUpdater, } };
+            var drawMultiplexer = new DrawingMultiplexer { Drawables = { worldViewCamera, hudViewCamera } };
+            _gameState = new GameStateAdapter { UpdateStepUpdateable = updateStepMultiplexer, DrawStepUpdateable = viewsUpdater, Drawable = drawMultiplexer };
+
+            var map = Content.Load<Map>("01");
+            //добавить мапу как вьюху
+            var mapView = new MapView(map);
+            worldMapViewProcessor.Collect(mapView);
+
+            //добавить стены в мир
+            var wallBody = new Body(_world, Vector2.Zero);
+            var verticesArrays = map.ObjectLayers["walls"].MapObjects
+                .Select(mapObject => new Vertices(mapObject.Polyline.Points.Select(p => new Vector2(p.X/10f, p.Y/10f))));
+            foreach (var vertices in verticesArrays)
+                FixtureFactory.AttachChainShape(vertices, wallBody);
+
+            //добавить танки как полноценные тройки MVC
+            var bodyTexture = Content.Load<Texture2D>("body");
+            var towerTexture = Content.Load<Texture2D>("tower");
+            var bulletTexture = Content.Load<Texture2D>("bullet");
+
+            var tankModelFactory = new TankModelFactory(_world);
+            var tankViewFactory = new TankViewFactory(bodyTexture, towerTexture);
+            var tankUserControllerFactory = new TankUserControllerFactory();
+            var tankEnemyControllerFactory = new TankEnemyControllerFactory();
+
+            var userTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankUserControllerFactory);
+            var enemyTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankEnemyControllerFactory);
+
+            foreach (var mapObject in map.ObjectLayers["entities"].MapObjects)
+            {
+                if (mapObject.Type == "Player")
+                {
+                    userTankSpawner.Spawn(new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0);
+                    //var body = new Body(_world, new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0, BodyType.Dynamic, this) { FixedRotation = true };
+                    //FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
+
+                    //var tankBody = new TankBody(body);
+                    ////var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
+                    //var tankTower = new TankTower(tankBody, null) { AimingSpeed = 3 };
+
+                    //var tank = new Tank(tankBody, tankTower);
+                    //body.UserData = tank;
+                    //modelsProcessor.Collect(tank);
+                    //var controller = new UserTankController(tank);
+                    //controllersProcessor.Collect(controller);
+                    //var view = new TankView(tank, bodyTexture, towerTexture);
+                    //worldCharacterViewProcessor.Collect(view);
+                }
+                else if (mapObject.Type == "Enemy")
+                {
+                    enemyTankSpawner.Spawn(new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0);
+                    //var body = new Body(_world, new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0, BodyType.Dynamic, this) { FixedRotation = true };
+                    //FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
+
+                    //var tankBody = new TankBody(body);
+                    ////var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
+                    //var tankTower = new TankTower(tankBody, null) { AimingSpeed = 3 };
+
+                    //var tank = new Tank(tankBody, tankTower);
+                    //body.UserData = tank;
+                    //modelsProcessor.Collect(tank);
+                    //var tankView = new TankView(tank, bodyTexture, towerTexture);
+                    //worldCharacterViewProcessor.Collect(tankView);
+                }
+            }
         }
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
-        private Ticker _physicsTicker;
-        private Ticker _logicTicker;
-        private Ticker _drawingTicker;
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _physicsTicker = new Ticker();
-            _logicTicker = new Ticker();
-            _drawingTicker = new Ticker();
-
-            var container = new Container()
-                .Bind<ILevelLoader>(c => new LevelLoader(Content, c.Resolve<IMapObjectProcessorFactory>()))
-                .Bind<IMapObjectProcessorFactory>(c => new MapObjectProcessorFactory());
-
-            container.Resolve<ILevelLoader>().LoadLevel(_physicsTicker, _logicTicker, _drawingTicker, _spriteBatch, "01");
         }
 
 
@@ -74,8 +152,7 @@ namespace GameProject
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            _logicTicker.Tick(gameTime);
-            _physicsTicker.Tick(gameTime);
+            _gameState.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -86,11 +163,7 @@ namespace GameProject
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            _spriteBatch.Begin();
-            _drawingTicker.Tick(gameTime);
-            _spriteBatch.End();
-
+            _gameState.Draw(gameTime);
             base.Draw(gameTime);
         }
     }

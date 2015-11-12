@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameProxies;
 
 namespace XTiled
 {
@@ -54,7 +55,7 @@ namespace XTiled
         /// <param name="lineWidth">The width of the line in pixels</param>
         /// <param name="color">The color value to apply to the given texture</param>
         /// <param name="layerDepth">LayerDepth value to pass to SpriteBatch</param>
-        public static void Draw(SpriteBatch spriteBatch, Line line, Rectangle region, Texture2D texture, float lineWidth, Color color, float layerDepth)
+        public static void Draw(IImmutableSpriteBatch spriteBatch, Line line, Rectangle region, Texture2D texture, float lineWidth, Color color, float layerDepth)
         {
             var start = Map.Translate(line.Start, region);
             spriteBatch.Draw(texture, start, null, color, line.Angle, Vector2.Zero, new Vector2(line.Length, lineWidth), SpriteEffects.None, layerDepth);

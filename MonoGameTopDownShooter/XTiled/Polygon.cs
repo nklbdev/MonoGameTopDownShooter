@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameProxies;
 
 namespace XTiled
 {
@@ -97,7 +98,7 @@ namespace XTiled
         /// <param name="lineWidth">The width of the lines in pixels</param>
         /// <param name="color">The color value to apply to the given texture</param>
         /// <param name="layerDepth">LayerDepth value to pass to SpriteBatch</param>
-        public void Draw(SpriteBatch spriteBatch, Rectangle region, Texture2D texture, float lineWidth, Color color, float layerDepth)
+        public void Draw(IImmutableSpriteBatch spriteBatch, Rectangle region, Texture2D texture, float lineWidth, Color color, float layerDepth)
         {
             foreach (var line in Lines)
                 Line.Draw(spriteBatch, line, region, texture, lineWidth, color, layerDepth);
@@ -113,7 +114,7 @@ namespace XTiled
         /// <param name="color">The color value to apply to the polgon lines</param>
         /// <param name="layerDepth">LayerDepth value to pass to SpriteBatch</param>
         /// <param name="fillColor">The color value to fill the polygon</param>
-        public void DrawFilled(SpriteBatch spriteBatch, Rectangle region, Texture2D texture, float lineWidth, Color color, Color fillColor, float layerDepth)
+        public void DrawFilled(IImmutableSpriteBatch spriteBatch, Rectangle region, Texture2D texture, float lineWidth, Color color, Color fillColor, float layerDepth)
         {
             foreach (var line in Lines)
                 Line.Draw(spriteBatch, line, region, texture, lineWidth, color, layerDepth);

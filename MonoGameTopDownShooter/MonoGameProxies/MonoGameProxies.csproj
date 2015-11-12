@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3DE053B2-D33C-4E19-9CB5-91F736498FEE}</ProjectGuid>
+    <ProjectGuid>{93097507-3E1E-49C7-8606-4276CA8895C7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XTiled</RootNamespace>
-    <AssemblyName>XTiled</AssemblyName>
+    <RootNamespace>MonoGameProxies</RootNamespace>
+    <AssemblyName>MonoGameProxies</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,13 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MonoGame.Framework, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MonoGame.Framework.Portable.3.2.99.1-Beta\lib\portable-net40+sl40+win+wp80\MonoGame.Framework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,33 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LayerInfo.cs" />
-    <Compile Include="LayerType.cs" />
-    <Compile Include="Line.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="MapObject.cs" />
-    <Compile Include="MapOrientation.cs" />
-    <Compile Include="ObjectLayer.cs" />
-    <Compile Include="ObjectLayerList.cs" />
-    <Compile Include="Polygon.cs" />
-    <Compile Include="Polyline.cs" />
+    <Compile Include="IImmutableSpriteBatch.cs" />
+    <Compile Include="ISpriteBatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property.cs" />
-    <Compile Include="Tile.cs" />
-    <Compile Include="TileData.cs" />
-    <Compile Include="TileLayer.cs" />
-    <Compile Include="TileLayerList.cs" />
-    <Compile Include="Tileset.cs" />
-    <Compile Include="TmxContentReader.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MonoGameProxies\MonoGameProxies.csproj">
-      <Project>{93097507-3E1E-49C7-8606-4276CA8895C7}</Project>
-      <Name>MonoGameProxies</Name>
-    </ProjectReference>
+    <Compile Include="SpriteBatchProxy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

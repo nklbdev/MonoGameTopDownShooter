@@ -1,6 +1,6 @@
 namespace GameProject.Entities
 {
-    public interface ITankBody : IPivot, IObservableDisposable
+    public interface ITankBody : IPivot, INewEntity
     {
         MovingDirection MovingDirection { get; set; }
         RotatingDirection RotatingDirection { get; set; }

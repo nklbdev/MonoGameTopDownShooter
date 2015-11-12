@@ -1,12 +1,10 @@
 using System;
-using GameProject.Spawners;
 using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities
 {
-    public class TankTower : ITankTower
+    public class TankTower : NewEntityBase, ITankTower
     {
-        private readonly ISpawner _bulletSpawner;
         private readonly IPivot _pivot;
         private const float _fireRate = 4; //shots per second
         private const float _shotDuration = 1/_fireRate;
@@ -20,9 +18,11 @@ namespace GameProject.Entities
 
         public bool IsFiring { get; set; }
 
-        public Vector2 Position {
+        public Vector2 Position
+        {
             get { return _pivot.Position + RelativePosition; }
-            set { RelativePosition = value - _pivot.Position; } }
+            set { RelativePosition = value - _pivot.Position; }
+        }
 
         public float Rotation
         {
@@ -30,9 +30,10 @@ namespace GameProject.Entities
             set { RelativeRotation = value - _pivot.Rotation; }
         }
 
-        public TankTower(IPivot pivot, ISpawner bulletSpawner)
+        //public TankTower(IPivot pivot, Spawners.ISpawner bulletSpawner)
+        public TankTower(IPivot pivot)
         {
-            _bulletSpawner = bulletSpawner;
+            //_bulletSpawner = bulletSpawner;
             _pivot = pivot;
         }
 
@@ -42,27 +43,19 @@ namespace GameProject.Entities
             var pathToTarget = Target - Position;
             var angleToTarget = Vector2Helpers.SignedAngle(absDirection, pathToTarget);
             RelativeRotation += angleToTarget > 0
-                ? Math.Min(AimingSpeed * elapsedSeconds, angleToTarget)
-                : Math.Max(-AimingSpeed * elapsedSeconds, angleToTarget);
+                ? Math.Min(AimingSpeed*elapsedSeconds, angleToTarget)
+                : Math.Max(-AimingSpeed*elapsedSeconds, angleToTarget);
 
             if (IsFiring)
             {
                 _timeBeforeNextShot -= elapsedSeconds;
-                for (; _timeBeforeNextShot < 0; _timeBeforeNextShot += _shotDuration)
-                    _bulletSpawner.Spawn(Position, Rotation);
+                //for (; _timeBeforeNextShot < 0; _timeBeforeNextShot += _shotDuration)
+                //_bulletSpawner.Spawn(Position, Rotation);
             }
             else
             {
                 _timeBeforeNextShot = Math.Max(0, _timeBeforeNextShot - elapsedSeconds);
             }
         }
-
-        public void Dispose()
-        {
-            //throw new NotImplementedException();
-        }
-
-        public bool IsDisposed { get; private set; }
-        public event Action<IEntity> Disposed;
     }
 }

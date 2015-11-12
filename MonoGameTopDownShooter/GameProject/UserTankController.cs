@@ -1,19 +1,34 @@
-﻿using GameProject.Entities;
-using Microsoft.Xna.Framework;
+﻿using System;
+using GameProject.Entities;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameProject
 {
-    public class UserTankController : Entity
+    public class UserTankController : NewEntityBase, IController
     {
         private readonly ITank _tank;
 
         public UserTankController(ITank tank)
         {
+            if (tank == null)
+                throw new ArgumentNullException("tank");
             _tank = tank;
+            _tank.Destroyed += TankOnDestroyed;
         }
 
-        public override void Update(GameTime gameTime)
+        private void TankOnDestroyed(INewEntity entity)
+        {
+            if (entity != _tank)
+                return;
+            Destroy();
+        }
+
+        public override void OnDestroy()
+        {
+            _tank.Destroyed -= TankOnDestroyed;
+        }
+
+        public override void OnUpdate(float deltaTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.W))
                 _tank.Body.MovingDirection = MovingDirection.Forward;

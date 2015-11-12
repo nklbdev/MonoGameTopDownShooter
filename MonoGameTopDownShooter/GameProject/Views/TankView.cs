@@ -2,20 +2,20 @@ using System;
 using GameProject.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameProxies;
 
 namespace GameProject.Views
 {
-    public class TankView : Entity
+    public class TankView : ViewBase
     {
         private readonly ITank _tank;
         private readonly Texture2D _bodyTexture;
         private readonly Texture2D _towerTexture;
-        private readonly SpriteBatch _spriteBatch;
         private readonly Vector2 _bodyTextureCenter;
         private readonly Vector2 _towerTextureCenter;
         private const float _scale = 10;
 
-        public TankView(ITank tank, Texture2D bodyTexture, Texture2D towerTexture, SpriteBatch spriteBatch)
+        public TankView(ITank tank, Texture2D bodyTexture, Texture2D towerTexture)
         {
             if (tank == null)
                 throw new ArgumentNullException("tank");
@@ -24,44 +24,40 @@ namespace GameProject.Views
             _tank = tank;
             _bodyTexture = bodyTexture;
             _towerTexture = towerTexture;
-            _spriteBatch = spriteBatch;
-            _tank.Disposed += TankOnDisposed;
+            _tank.Destroyed += TankOnDestroyed;
             _bodyTextureCenter = new Vector2(_bodyTexture.Width, _bodyTexture.Height) / 2;
             _towerTextureCenter = new Vector2(_towerTexture.Width, _towerTexture.Height) / 2;
         }
 
-        private void TankOnDisposed(IEntity entity)
+        private void TankOnDestroyed(INewEntity entity)
         {
-            Dispose();
+            if (entity != _tank)
+                return;
+            Destroy();
         }
 
-        public override void Dispose()
+        public override void OnDestroy()
         {
-            _tank.Disposed -= TankOnDisposed;
-            base.Dispose();
+            _tank.Destroyed -= TankOnDestroyed;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void OnRender(IImmutableSpriteBatch spriteBatch, ref Rectangle boundingRectangle)
         {
-            _spriteBatch.Draw(
+            spriteBatch.Draw(
                 _bodyTexture,
                 _tank.Body.Position * _scale, //position
                 null, //destinationRectangle
                 null, //sourceRectangle
                 _bodyTextureCenter, //origin
-                _tank.Body.Rotation + (float)Math.PI / 2, //rotation
-                null, //scale
-                null); //color
+                _tank.Body.Rotation + (float)Math.PI / 2); //color
 
-            _spriteBatch.Draw(
+            spriteBatch.Draw(
                 _towerTexture,
                 _tank.Tower.Position * _scale, //position
                 null, //destinationRectangle
                 null, //sourceRectangle
                 _towerTextureCenter, //origin
-                _tank.Tower.Rotation + (float)Math.PI / 2, //rotation
-                null, //scale
-                null); //color
+                _tank.Tower.Rotation + (float)Math.PI / 2); //color
         }
     }
 }

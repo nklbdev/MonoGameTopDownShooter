@@ -38,7 +38,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DeathReason.cs" />
+    <Compile Include="Camera.cs" />
+    <Compile Include="DrawingMultiplexer.cs" />
+    <Compile Include="EnemyTankController.cs" />
     <Compile Include="Entities\Bullets\SimpleBullet.cs" />
     <Compile Include="Entities\IPivot.cs" />
     <Compile Include="Entities\IPivoted.cs" />
@@ -49,31 +51,42 @@
     <Compile Include="Entities\RotatingDirection.cs" />
     <Compile Include="Entities\TankBody.cs" />
     <Compile Include="Entities\TankTower.cs" />
-    <Compile Include="IMyDrawable.cs" />
-    <Compile Include="IMyUpdateable.cs" />
-    <Compile Include="IObservableDisposable.cs" />
-    <Compile Include="IUpdater.cs" />
-    <Compile Include="MatchResults.cs" />
-    <Compile Include="Entities\Cannon.cs" />
-    <Compile Include="Spawners\TankSpawener.cs" />
-    <Compile Include="Spawners\TankSpawnerController.cs" />
-    <Compile Include="SpawnPoint.cs" />
+    <Compile Include="EntityDestroyedEventHandler.cs" />
+    <Compile Include="EntityProcessor.cs" />
+    <Compile Include="EntityUpdater.cs" />
+    <Compile Include="ExampleController.cs" />
+    <Compile Include="GameStateAdapter.cs" />
+    <Compile Include="IController.cs" />
+    <Compile Include="IDestructable.cs" />
+    <Compile Include="IDrawable.cs" />
+    <Compile Include="IEntityCollector.cs" />
+    <Compile Include="IGameState.cs" />
+    <Compile Include="IModel.cs" />
+    <Compile Include="INewEntity.cs" />
+    <Compile Include="IProcessor.cs" />
+    <Compile Include="IRenderable.cs" />
+    <Compile Include="ITankControllerFactory.cs" />
+    <Compile Include="ITankModelFactory.cs" />
+    <Compile Include="ITankSpawner.cs" />
+    <Compile Include="ITankViewFactory.cs" />
+    <Compile Include="IUpdateable.cs" />
+    <Compile Include="IView.cs" />
+    <Compile Include="MapRenderer.cs" />
+    <Compile Include="MapView.cs" />
+    <Compile Include="NewEntityBase.cs" />
+    <Compile Include="Spawners\BulletSpawner.cs" />
+    <Compile Include="TankEnemyControllerFactory.cs" />
+    <Compile Include="TankModelFactory.cs" />
+    <Compile Include="TankSpawner.cs" />
+    <Compile Include="TankUserControllerFactory.cs" />
+    <Compile Include="TankViewFactory.cs" />
+    <Compile Include="UpdationMultiplexer.cs" />
     <Compile Include="Vector2Helpers.cs" />
-    <Compile Include="Views\WallView.cs" />
-    <Compile Include="Views\MapView.cs" />
+    <Compile Include="ViewBase.cs" />
     <Compile Include="Views\BulletView.cs" />
-    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IBullet.cs" />
-    <Compile Include="IEntity.cs" />
-    <Compile Include="ILevelLoader.cs" />
     <Compile Include="IMapObjectProcessor.cs" />
-    <Compile Include="IMapObjectProcessorFactory.cs" />
     <Compile Include="Spawners\ISpawner.cs" />
-    <Compile Include="LevelLoader.cs" />
-    <Compile Include="MapObjectProcessor.cs" />
-    <Compile Include="MapObjectProcessorFactory.cs" />
-    <Compile Include="Ticker.cs" />
-    <Compile Include="PhysicsWorldUpdater.cs" />
     <Compile Include="Entities\Tank.cs" />
     <Compile Include="UserTankController.cs" />
     <Compile Include="Game1.cs" />
@@ -81,8 +94,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpriteBatchExtensions.cs" />
-    <Compile Include="Views\BackgroundView.cs" />
     <Compile Include="Views\TankView.cs" />
+    <Compile Include="WorldUpdateableAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FarseerPhysics.Portable, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -105,6 +118,10 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MonoGameProxies\MonoGameProxies.csproj">
+      <Project>{93097507-3E1E-49C7-8606-4276CA8895C7}</Project>
+      <Name>MonoGameProxies</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimplestIocContainer\SimplestIocContainer.csproj">
       <Project>{14c2bde2-cecd-4026-8917-6bb0a8271965}</Project>
       <Name>SimplestIocContainer</Name>
