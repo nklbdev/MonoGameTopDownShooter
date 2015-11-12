@@ -1,9 +1,6 @@
 using System;
 using FarseerPhysics.Dynamics;
-using GameProject.Entities;
 using GameProject.Entities.Models.Tanks;
-using GameProject.Entities.Models.Tanks.Components;
-using GameProject.Spawners;
 using Microsoft.Xna.Framework;
 
 namespace GameProject.Factories
@@ -11,24 +8,21 @@ namespace GameProject.Factories
     public class TankModelFactory : ITankModelFactory
     {
         private readonly World _world;
-        private readonly IBulletSpawner _bulletSpawner;
+        private readonly ITankTowerFactory _tankTowerFactory;
 
-        public TankModelFactory(World world, IBulletSpawner bulletSpawner)
+        public TankModelFactory(World world, ITankTowerFactory tankTowerFactory)
         {
             if (world == null)
                 throw new ArgumentNullException("world");
+            if (tankTowerFactory == null)
+                throw new ArgumentNullException("tankTowerFactory");
             _world = world;
-            _bulletSpawner = bulletSpawner;
+            _tankTowerFactory = tankTowerFactory;
         }
 
         public ITank Create(Vector2 position, float rotation)
         {
-            var tank = new Tank();
-            var body = new TankBody(_world, position, rotation, tank);
-            var tower = new TankTower(body, _bulletSpawner, tank) { AimingSpeed = 3 };
-            tank.Body = body;
-            tank.Tower = tower;
-            return tank;
+            return new Tank(_world, position, rotation, _tankTowerFactory);
         }
     }
 }

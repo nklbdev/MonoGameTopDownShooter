@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject.Spawners
 {
-    public class TankSpawner : ISpawner
+    public class TankSpawner : ITankSpawner
     {
         //создает системы MVC
         private readonly IEntityCollector<IModel> _modelsCollector;

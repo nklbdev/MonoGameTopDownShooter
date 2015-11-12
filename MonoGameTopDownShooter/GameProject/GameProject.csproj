@@ -39,6 +39,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Factories\BulletModelFactory.cs" />
+    <Compile Include="Factories\ITankTowerFactory.cs" />
+    <Compile Include="Factories\TankTowerFactory.cs" />
     <Compile Include="Spawners\BulletSpawner.cs" />
     <Compile Include="Factories\BulletViewFactory.cs" />
     <Compile Include="Infrastructure\Camera.cs" />
@@ -48,11 +50,9 @@
     <Compile Include="IPivot.cs" />
     <Compile Include="IPivoted.cs" />
     <Compile Include="Entities\Models\Tanks\Components\ITankArmor.cs" />
-    <Compile Include="Entities\Models\Tanks\Components\ITankBody.cs" />
     <Compile Include="Entities\Models\Tanks\Components\ITankTower.cs" />
     <Compile Include="MovingDirection.cs" />
     <Compile Include="RotatingDirection.cs" />
-    <Compile Include="Entities\Models\Tanks\Components\TankBody.cs" />
     <Compile Include="Entities\Models\Tanks\Components\TankTower.cs" />
     <Compile Include="Entities\EntityDestroyedEventHandler.cs" />
     <Compile Include="Infrastructure\EntityProcessor.cs" />
@@ -72,7 +72,7 @@
     <Compile Include="Infrastructure\IRenderable.cs" />
     <Compile Include="Factories\ITankControllerFactory.cs" />
     <Compile Include="Factories\ITankModelFactory.cs" />
-    <Compile Include="Spawners\ISpawner.cs" />
+    <Compile Include="Spawners\ITankSpawner.cs" />
     <Compile Include="Factories\ITankViewFactory.cs" />
     <Compile Include="Infrastructure\IUpdateable.cs" />
     <Compile Include="Entities\Views\IView.cs" />

@@ -31,18 +31,18 @@ namespace GameProject.Entities.Controllers
         protected override void OnUpdate(float deltaTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-                _tank.Body.MovingDirection = MovingDirection.Forward;
+                _tank.MovingDirection = MovingDirection.Forward;
             else if (Keyboard.GetState().IsKeyDown(Keys.S))
-                _tank.Body.MovingDirection = MovingDirection.Backward;
+                _tank.MovingDirection = MovingDirection.Backward;
             else
-                _tank.Body.MovingDirection = MovingDirection.None;
+                _tank.MovingDirection = MovingDirection.None;
 
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-                _tank.Body.RotatingDirection = RotatingDirection.Left;
+                _tank.RotatingDirection = RotatingDirection.Left;
             else if (Keyboard.GetState().IsKeyDown(Keys.D))
-                _tank.Body.RotatingDirection = RotatingDirection.Right;
+                _tank.RotatingDirection = RotatingDirection.Right;
             else
-                _tank.Body.RotatingDirection = RotatingDirection.None;
+                _tank.RotatingDirection = RotatingDirection.None;
 
 
             _tank.Tower.Target = Mouse.GetState().Position.ToVector2() / 10;

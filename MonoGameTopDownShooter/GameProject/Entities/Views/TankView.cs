@@ -45,11 +45,11 @@ namespace GameProject.Entities.Views
         {
             spriteBatch.Draw(
                 _bodyTexture,
-                _tank.Body.Position * _scale, //position
+                _tank.Position * _scale, //position
                 null, //destinationRectangle
                 null, //sourceRectangle
                 _bodyTextureCenter, //origin
-                _tank.Body.Rotation + (float)Math.PI / 2); //color
+                _tank.Rotation + (float)Math.PI / 2); //color
 
             spriteBatch.Draw(
                 _towerTexture,

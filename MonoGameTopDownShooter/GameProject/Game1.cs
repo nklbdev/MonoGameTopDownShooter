@@ -84,18 +84,19 @@ namespace GameProject
             var towerTexture = Content.Load<Texture2D>("tower");
             var bulletTexture = Content.Load<Texture2D>("bullet");
 
-            var bulletModelFactory = new BulletModelFactory(_world);
-            var bulletViewFactory = new BulletViewFactory(bulletTexture);
-            var bulletSpawner = new BulletSpawner(modelsProcessor, viewsProcessor, worldCharacterViewProcessor, bulletModelFactory, bulletViewFactory);
+            IBulletModelFactory bulletModelFactory = new BulletModelFactory(_world);
+            IBulletViewFactory bulletViewFactory = new BulletViewFactory(bulletTexture);
+            IBulletSpawner bulletSpawner = new BulletSpawner(modelsProcessor, viewsProcessor, worldCharacterViewProcessor, bulletModelFactory, bulletViewFactory);
 
-            var tankModelFactory = new TankModelFactory(_world, bulletSpawner);
-            var tankViewFactory = new TankViewFactory(bodyTexture, towerTexture);
-            var tankUserControllerFactory = new TankUserControllerFactory();
-            var tankEnemyControllerFactory = new TankEnemyControllerFactory();
+            ITankTowerFactory tankTowerFactory = new TankTowerFactory(bulletSpawner);
+            ITankModelFactory tankModelFactory = new TankModelFactory(_world, tankTowerFactory);
+            ITankViewFactory tankViewFactory = new TankViewFactory(bodyTexture, towerTexture);
+            ITankControllerFactory tankUserControllerFactory = new TankUserControllerFactory();
+            ITankControllerFactory tankEnemyControllerFactory = new TankEnemyControllerFactory();
 
 
-            var userTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankUserControllerFactory);
-            var enemyTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankEnemyControllerFactory);
+            ITankSpawner userTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankUserControllerFactory);
+            ITankSpawner enemyTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankEnemyControllerFactory);
 
             foreach (var mapObject in map.ObjectLayers["entities"].MapObjects)
             {
