@@ -1,11 +1,13 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
-using GameProject.Entities;
-using GameProject.Entities.Bullets;
-using GameProject.Views;
+using GameProject.Entities.Controllers;
+using GameProject.Entities.Models;
+using GameProject.Entities.Views;
+using GameProject.Factories;
+using GameProject.Infrastructure;
+using GameProject.Spawners;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameProxies;
@@ -149,49 +151,5 @@ namespace GameProject
             _gameState.Draw(gameTime);
             base.Draw(gameTime);
         }
-    }
-
-    public class BulletViewFactory : IBulletViewFactory
-    {
-        private readonly Texture2D _bulletTexture;
-
-        public BulletViewFactory(Texture2D bulletTexture)
-        {
-            if (bulletTexture == null)
-                throw new ArgumentNullException("bulletTexture");
-            _bulletTexture = bulletTexture;
-        }
-
-        public IView Create(IBullet bullet)
-        {
-            return new BulletView(bullet, _bulletTexture);
-        }
-    }
-
-    public interface IBulletViewFactory
-    {
-        IView Create(IBullet model);
-    }
-
-    public class BulletModelFactory : IBulletModelFactory
-    {
-        private readonly World _world;
-
-        public BulletModelFactory(World world)
-        {
-            if (world == null)
-                throw new ArgumentNullException("world");
-            _world = world;
-        }
-
-        public IBullet Create(Vector2 position, float rotation, ITank ownerTank)
-        {
-            return new SimpleBullet(_world, position, rotation, ownerTank);
-        }
-    }
-
-    public interface IBulletModelFactory
-    {
-        IBullet Create(Vector2 position, float rotation, ITank ownerTank);
     }
 }
