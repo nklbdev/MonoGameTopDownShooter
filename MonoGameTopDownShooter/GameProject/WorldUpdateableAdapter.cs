@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using FarseerPhysics.Dynamics;
 
 namespace GameProject
@@ -17,7 +16,6 @@ namespace GameProject
 
         public void Update(float deltaTime)
         {
-            Trace.WriteLine("WorldUpdateableAdapter.Update");
             _world.Step(deltaTime);
         }
     }

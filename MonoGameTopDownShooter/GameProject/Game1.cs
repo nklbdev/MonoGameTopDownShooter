@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using GameProject.Entities;
+using GameProject.Entities.Bullets;
 using GameProject.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -80,49 +82,31 @@ namespace GameProject
             var towerTexture = Content.Load<Texture2D>("tower");
             var bulletTexture = Content.Load<Texture2D>("bullet");
 
-            var tankModelFactory = new TankModelFactory(_world);
+            var bulletModelFactory = new BulletModelFactory(_world);
+            var bulletViewFactory = new BulletViewFactory(bulletTexture);
+            var bulletSpawner = new BulletSpawner(modelsProcessor, viewsProcessor, worldCharacterViewProcessor, bulletModelFactory, bulletViewFactory);
+
+            var tankModelFactory = new TankModelFactory(_world, bulletSpawner);
             var tankViewFactory = new TankViewFactory(bodyTexture, towerTexture);
             var tankUserControllerFactory = new TankUserControllerFactory();
             var tankEnemyControllerFactory = new TankEnemyControllerFactory();
+
 
             var userTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankUserControllerFactory);
             var enemyTankSpawner = new TankSpawner(modelsProcessor, controllersProcessor, viewsProcessor, worldCharacterViewProcessor, tankModelFactory, tankViewFactory, tankEnemyControllerFactory);
 
             foreach (var mapObject in map.ObjectLayers["entities"].MapObjects)
             {
-                if (mapObject.Type == "Player")
+                var position = new Vector2(mapObject.Bounds.X/10f, mapObject.Bounds.Y/10f);
+                var rotation = 0;
+                switch (mapObject.Type)
                 {
-                    userTankSpawner.Spawn(new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0);
-                    //var body = new Body(_world, new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0, BodyType.Dynamic, this) { FixedRotation = true };
-                    //FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
-
-                    //var tankBody = new TankBody(body);
-                    ////var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
-                    //var tankTower = new TankTower(tankBody, null) { AimingSpeed = 3 };
-
-                    //var tank = new Tank(tankBody, tankTower);
-                    //body.UserData = tank;
-                    //modelsProcessor.Collect(tank);
-                    //var controller = new UserTankController(tank);
-                    //controllersProcessor.Collect(controller);
-                    //var view = new TankView(tank, bodyTexture, towerTexture);
-                    //worldCharacterViewProcessor.Collect(view);
-                }
-                else if (mapObject.Type == "Enemy")
-                {
-                    enemyTankSpawner.Spawn(new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0);
-                    //var body = new Body(_world, new Vector2(mapObject.Bounds.X / 10f, mapObject.Bounds.Y / 10f), 0, BodyType.Dynamic, this) { FixedRotation = true };
-                    //FixtureFactory.AttachCircle(2.4f, 1, body, Vector2.Zero, this);
-
-                    //var tankBody = new TankBody(body);
-                    ////var tankTower = new TankTower(tankBody, new BulletSpawner(_logicTicker, _drawingTicker, _world, _bulletTexture, _spriteBatch, body)) { AimingSpeed = 3 };
-                    //var tankTower = new TankTower(tankBody, null) { AimingSpeed = 3 };
-
-                    //var tank = new Tank(tankBody, tankTower);
-                    //body.UserData = tank;
-                    //modelsProcessor.Collect(tank);
-                    //var tankView = new TankView(tank, bodyTexture, towerTexture);
-                    //worldCharacterViewProcessor.Collect(tankView);
+                    case "Player":
+                        userTankSpawner.Spawn(position, rotation);
+                        break;
+                    case "Enemy":
+                        enemyTankSpawner.Spawn(position, rotation);
+                        break;
                 }
             }
         }
@@ -142,7 +126,6 @@ namespace GameProject
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -166,5 +149,49 @@ namespace GameProject
             _gameState.Draw(gameTime);
             base.Draw(gameTime);
         }
+    }
+
+    public class BulletViewFactory : IBulletViewFactory
+    {
+        private readonly Texture2D _bulletTexture;
+
+        public BulletViewFactory(Texture2D bulletTexture)
+        {
+            if (bulletTexture == null)
+                throw new ArgumentNullException("bulletTexture");
+            _bulletTexture = bulletTexture;
+        }
+
+        public IView Create(IBullet bullet)
+        {
+            return new BulletView(bullet, _bulletTexture);
+        }
+    }
+
+    public interface IBulletViewFactory
+    {
+        IView Create(IBullet model);
+    }
+
+    public class BulletModelFactory : IBulletModelFactory
+    {
+        private readonly World _world;
+
+        public BulletModelFactory(World world)
+        {
+            if (world == null)
+                throw new ArgumentNullException("world");
+            _world = world;
+        }
+
+        public IBullet Create(Vector2 position, float rotation, ITank ownerTank)
+        {
+            return new SimpleBullet(_world, position, rotation, ownerTank);
+        }
+    }
+
+    public interface IBulletModelFactory
+    {
+        IBullet Create(Vector2 position, float rotation, ITank ownerTank);
     }
 }

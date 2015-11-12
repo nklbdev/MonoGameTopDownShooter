@@ -3,51 +3,39 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject
 {
-    public class TankSpawner : ISpawner
+    public class BulletSpawner : IBulletSpawner
     {
         //создает системы MVC
         private readonly IEntityCollector<IModel> _modelsCollector;
-        private readonly IEntityCollector<IController> _controllersCollector;
         private readonly IEntityCollector<IView> _viewsCollector;
 
         private readonly IEntityCollector<IView> _worldViewCollector;
 
-        private readonly ITankModelFactory _modelFactory;
-        private readonly ITankViewFactory _worldViewFactory;
-        private readonly ITankControllerFactory _controllerFactory;
+        private readonly IBulletModelFactory _modelFactory;
+        private readonly IBulletViewFactory _worldViewFactory;
 
-        public TankSpawner(
+        public BulletSpawner(
             IEntityCollector<IModel> modelsCollector,
-            IEntityCollector<IController> controllersCollector,
             IEntityCollector<IView> viewsCollector,
 
             IEntityCollector<IView> worldViewCollector,
             
-            ITankModelFactory modelFactory,
-            ITankViewFactory worldViewFactory,
-            ITankControllerFactory controllerFactory)
+            IBulletModelFactory modelFactory,
+            IBulletViewFactory worldViewFactory)
         {
             _modelsCollector = modelsCollector;
-            _controllersCollector = controllersCollector;
             _viewsCollector = viewsCollector;
             _worldViewCollector = worldViewCollector;
             _modelFactory = modelFactory;
             _worldViewFactory = worldViewFactory;
-            _controllerFactory = controllerFactory;
         }
 
-        public void Spawn(Vector2 position, float rotation)
+        public void Spawn(Vector2 position, float rotation, ITank ownerTank)
         {
-            var model = _modelFactory.Create(position, rotation);
+            var model = _modelFactory.Create(position, rotation, ownerTank);
             _modelsCollector.Collect(model);
-            _controllersCollector.Collect(_controllerFactory.Create(model));
             _viewsCollector.Collect(_worldViewFactory.Create(model));
             _worldViewCollector.Collect(_worldViewFactory.Create(model));
         }
-    }
-
-    public interface IBulletSpawner
-    {
-        void Spawn(Vector2 position, float rotation, ITank ownerTank);
     }
 }

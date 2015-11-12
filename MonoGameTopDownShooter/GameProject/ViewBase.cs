@@ -4,7 +4,7 @@ using MonoGameProxies;
 
 namespace GameProject
 {
-    public abstract class ViewBase : NewEntityBase, IView
+    public abstract class ViewBase : EntityBase, IView
     {
         public void Render(IImmutableSpriteBatch spriteBatch, ref Rectangle boundingRectangle)
         {

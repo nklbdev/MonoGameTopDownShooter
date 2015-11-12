@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities
 {
-    public interface ITankTower : IPivoted, INewEntity
+    public interface ITankTower : IPivoted, IEntity
     {
         float AimingSpeed { get; set; }
         Vector2 Target { get; set; }

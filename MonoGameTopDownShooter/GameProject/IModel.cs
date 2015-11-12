@@ -1,6 +1,6 @@
 namespace GameProject
 {
-    public interface IModel : INewEntity
+    public interface IModel : IEntity
     {
         //SomeMethods
     }

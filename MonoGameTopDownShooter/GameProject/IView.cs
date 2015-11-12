@@ -1,6 +1,6 @@
 namespace GameProject
 {
-    public interface IView : IRenderable, INewEntity
+    public interface IView : IRenderable, IEntity
     {
         
     }

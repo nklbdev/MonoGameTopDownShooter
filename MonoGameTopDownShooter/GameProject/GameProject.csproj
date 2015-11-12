@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BulletSpawner.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="DrawingMultiplexer.cs" />
     <Compile Include="EnemyTankController.cs" />
@@ -54,7 +55,6 @@
     <Compile Include="EntityDestroyedEventHandler.cs" />
     <Compile Include="EntityProcessor.cs" />
     <Compile Include="EntityUpdater.cs" />
-    <Compile Include="ExampleController.cs" />
     <Compile Include="GameStateAdapter.cs" />
     <Compile Include="IController.cs" />
     <Compile Include="IDestructable.cs" />
@@ -62,19 +62,17 @@
     <Compile Include="IEntityCollector.cs" />
     <Compile Include="IGameState.cs" />
     <Compile Include="IModel.cs" />
-    <Compile Include="INewEntity.cs" />
+    <Compile Include="IEntity.cs" />
     <Compile Include="IProcessor.cs" />
     <Compile Include="IRenderable.cs" />
     <Compile Include="ITankControllerFactory.cs" />
     <Compile Include="ITankModelFactory.cs" />
-    <Compile Include="ITankSpawner.cs" />
+    <Compile Include="ISpawner.cs" />
     <Compile Include="ITankViewFactory.cs" />
     <Compile Include="IUpdateable.cs" />
     <Compile Include="IView.cs" />
-    <Compile Include="MapRenderer.cs" />
     <Compile Include="MapView.cs" />
-    <Compile Include="NewEntityBase.cs" />
-    <Compile Include="Spawners\BulletSpawner.cs" />
+    <Compile Include="EntityBase.cs" />
     <Compile Include="TankEnemyControllerFactory.cs" />
     <Compile Include="TankModelFactory.cs" />
     <Compile Include="TankSpawner.cs" />
@@ -86,7 +84,6 @@
     <Compile Include="Views\BulletView.cs" />
     <Compile Include="Entities\IBullet.cs" />
     <Compile Include="IMapObjectProcessor.cs" />
-    <Compile Include="Spawners\ISpawner.cs" />
     <Compile Include="Entities\Tank.cs" />
     <Compile Include="UserTankController.cs" />
     <Compile Include="Game1.cs" />

@@ -1,51 +1,67 @@
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
+using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities.Bullets
 {
-    //public class SimpleBullet : Entity, IBullet
-    //{
-    //    private readonly Body _body;
+    public class SimpleBullet : EntityBase, IBullet
+    {
+        private readonly Body _body;
+        private readonly ITank _ownerTank;
+        private readonly World _world;
 
-    //    public SimpleBullet(Body body)
-    //    {
-    //        _body = body;
-    //        _body.LinearVelocity = Rotation.ToVector() * 50;
-    //        _body.OnCollision += BodyOnCollision;
-    //    }
+        public SimpleBullet(World world, Vector2 position, float rotation, ITank ownerTank)
+        {
+            _world = world;
+            _ownerTank = ownerTank;
+            _body = new Body(_world, position, rotation, BodyType.Dynamic)
+            {
+                FixedRotation = true,
+                IsBullet = true,
+                IsSensor = true
+            };
+            FixtureFactory.AttachCircle(0.1f, 1, _body, Vector2.Zero);
+            _body.LinearVelocity = Rotation.ToVector() * 50;
+            _body.OnCollision += BodyOnCollision;
+        }
 
-    //    private bool BodyOnCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
-    //    {
-    //        if (fixtureA.Body.UserData is IEntity)
-    //            (fixtureA.Body.UserData as IEntity).Dispose();
-    //        if (fixtureB.Body.UserData is IEntity)
-    //            (fixtureB.Body.UserData as IEntity).Dispose();
+        private bool BodyOnCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        {
+            var userDataA = fixtureA.Body.UserData;
+            var userDataB = fixtureB.Body.UserData;
 
-    //        Dispose();
-    //        return true;
-    //    }
+            if (userDataA == _ownerTank || userDataB == _ownerTank)
+                return false;
 
-    //    public Vector2 Position
-    //    {
-    //        get { return _body.Position; }
-    //        set { _body.Position = value; }
-    //    }
+            if (userDataA is IEntity)
+                (userDataA as IEntity).Destroy();
+            if (userDataB is IEntity)
+                (userDataB as IEntity).Destroy();
 
-    //    public float Rotation
-    //    {
-    //        get { return _body.Rotation; }
-    //    }
+            Destroy();
+            return true;
+        }
 
-    //    public override void Update(GameTime gameTime)
-    //    {
-    //    }
+        public Vector2 Position
+        {
+            get { return _body.Position; }
+            set { _body.Position = value; }
+        }
 
-    //    public override void Dispose()
-    //    {
-    //        _body.OnCollision -= BodyOnCollision;
-    //        _body.Dispose();
-    //        base.Dispose();
-    //    }
-    //}
+        public float Rotation
+        {
+            get { return _body.Rotation; }
+        }
+
+        protected override void OnUpdate(float deltaTime)
+        {
+        }
+
+        protected override void OnDestroy()
+        {
+            _body.OnCollision -= BodyOnCollision;
+            _world.RemoveBody(_body);
+        }
+    }
 }

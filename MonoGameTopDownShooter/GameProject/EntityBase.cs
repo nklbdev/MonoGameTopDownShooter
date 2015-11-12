@@ -2,7 +2,7 @@ using System;
 
 namespace GameProject
 {
-    public abstract class NewEntityBase : INewEntity
+    public abstract class EntityBase : IEntity
     {
         public void Update(float deltaTime)
         {
@@ -11,7 +11,7 @@ namespace GameProject
             OnUpdate(deltaTime);
         }
 
-        public virtual void OnUpdate(float deltaTime)
+        protected virtual void OnUpdate(float deltaTime)
         { }
 
         public event EntityDestroyedEventHandler Destroyed;
@@ -26,9 +26,8 @@ namespace GameProject
                 Destroyed(this);
         }
 
-        public virtual void OnDestroy()
-        {
-        }
+        protected virtual void OnDestroy()
+        { }
 
         public bool IsDestroyed { get; private set; }
     }

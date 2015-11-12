@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject.Entities
 {
-    public class TankTower : NewEntityBase, ITankTower
+    public class TankTower : EntityBase, ITankTower
     {
+        private readonly ITank _ownerTank;
         private readonly IPivot _pivot;
         private const float _fireRate = 4; //shots per second
         private const float _shotDuration = 1/_fireRate;
         private float _timeBeforeNextShot;
+        private readonly IBulletSpawner _bulletSpawner;
 
         public Vector2 RelativePosition { get; set; }
         public float RelativeRotation { get; set; }
@@ -30,14 +32,15 @@ namespace GameProject.Entities
             set { RelativeRotation = value - _pivot.Rotation; }
         }
 
-        //public TankTower(IPivot pivot, Spawners.ISpawner bulletSpawner)
-        public TankTower(IPivot pivot)
+        ////public TankTower(IPivot pivot, Spawners.ISpawner bulletSpawner)
+        public TankTower(IPivot pivot, IBulletSpawner bulletSpawner, ITank ownerTank)
         {
-            //_bulletSpawner = bulletSpawner;
+            _bulletSpawner = bulletSpawner;
             _pivot = pivot;
+            _ownerTank = ownerTank;
         }
 
-        public void Update(float elapsedSeconds)
+        protected override void OnUpdate(float elapsedSeconds)
         {
             var absDirection = Rotation.ToVector();
             var pathToTarget = Target - Position;
@@ -49,8 +52,8 @@ namespace GameProject.Entities
             if (IsFiring)
             {
                 _timeBeforeNextShot -= elapsedSeconds;
-                //for (; _timeBeforeNextShot < 0; _timeBeforeNextShot += _shotDuration)
-                //_bulletSpawner.Spawn(Position, Rotation);
+                for (; _timeBeforeNextShot < 0; _timeBeforeNextShot += _shotDuration)
+                    _bulletSpawner.Spawn(Position, Rotation, _ownerTank);
             }
             else
             {

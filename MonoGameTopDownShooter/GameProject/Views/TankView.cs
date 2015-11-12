@@ -29,14 +29,14 @@ namespace GameProject.Views
             _towerTextureCenter = new Vector2(_towerTexture.Width, _towerTexture.Height) / 2;
         }
 
-        private void TankOnDestroyed(INewEntity entity)
+        private void TankOnDestroyed(IEntity entity)
         {
             if (entity != _tank)
                 return;
             Destroy();
         }
 
-        public override void OnDestroy()
+        protected override void OnDestroy()
         {
             _tank.Destroyed -= TankOnDestroyed;
         }

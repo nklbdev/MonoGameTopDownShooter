@@ -1,6 +1,6 @@
 namespace GameProject.Entities
 {
-    public interface ITankArmor : INewEntity
+    public interface ITankArmor : IEntity
     {
         void TakeDamage(float damage);
     }

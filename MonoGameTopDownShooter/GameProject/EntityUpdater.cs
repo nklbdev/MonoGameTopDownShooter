@@ -1,9 +1,8 @@
 using System;
-using System.Diagnostics;
 
 namespace GameProject
 {
-    public class EntityUpdater<TEntity> : IUpdateable where TEntity : INewEntity
+    public class EntityUpdater<TEntity> : IUpdateable where TEntity : IEntity
     {
         private readonly IProcessor<TEntity> _processor;
 
@@ -16,7 +15,6 @@ namespace GameProject
 
         public void Update(float deltaTime)
         {
-            Trace.WriteLine("EntityUpdater.Update");
             _processor.Process(e => e.Update(deltaTime));
         }
     }

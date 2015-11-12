@@ -1,6 +1,6 @@
 namespace GameProject
 {
-    public interface IController : INewEntity
+    public interface IController : IEntity
     {
         //SomeMethods
     }

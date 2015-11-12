@@ -2,7 +2,7 @@ using System;
 
 namespace GameProject
 {
-    public class EntityProcessor<TEntity> : IEntityCollector<TEntity>, IProcessor<TEntity> where TEntity : class, INewEntity
+    public class EntityProcessor<TEntity> : IEntityCollector<TEntity>, IProcessor<TEntity> where TEntity : class, IEntity
     {
         private class EntityNode
         {

@@ -1,4 +1,4 @@
 namespace GameProject
 {
-    public delegate void EntityDestroyedEventHandler(INewEntity entity);
+    public delegate void EntityDestroyedEventHandler(IEntity entity);
 }

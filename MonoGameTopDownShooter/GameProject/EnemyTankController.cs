@@ -3,7 +3,7 @@ using GameProject.Entities;
 
 namespace GameProject
 {
-    public class EnemyTankController : NewEntityBase, IController
+    public class EnemyTankController : EntityBase, IController
     {
         private readonly ITank _tank;
 
@@ -15,19 +15,19 @@ namespace GameProject
             _tank.Destroyed += TankOnDestroyed;
         }
 
-        private void TankOnDestroyed(INewEntity entity)
+        private void TankOnDestroyed(IEntity entity)
         {
             if (entity != _tank)
                 return;
             Destroy();
         }
 
-        public override void OnDestroy()
+        protected override void OnDestroy()
         {
             _tank.Destroyed -= TankOnDestroyed;
         }
 
-        public override void OnUpdate(float deltaTime)
+        protected override void OnUpdate(float deltaTime)
         {
             //if (Keyboard.GetState().IsKeyDown(Keys.W))
             //    _tank.Body.MovingDirection = MovingDirection.Forward;
