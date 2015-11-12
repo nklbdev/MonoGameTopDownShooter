@@ -22,7 +22,7 @@ namespace GameProject.Factories
 
         public ITank Create(Vector2 position, float rotation)
         {
-            return new Tank(_world, position, rotation, _tankTowerFactory);
+            return new Tank(_world, position, rotation, _tankTowerFactory) { Health = 3f };
         }
     }
 }

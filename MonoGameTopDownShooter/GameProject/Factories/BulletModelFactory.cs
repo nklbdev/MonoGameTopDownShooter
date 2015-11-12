@@ -19,7 +19,7 @@ namespace GameProject.Factories
 
         public IBullet Create(Vector2 position, float rotation, ITank ownerTank)
         {
-            return new SimpleBullet(_world, position, rotation, ownerTank);
+            return new SimpleBullet(_world, position, rotation, ownerTank, 1);
         }
     }
 }

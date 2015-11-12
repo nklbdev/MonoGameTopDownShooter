@@ -12,6 +12,7 @@ namespace GameProject.Entities.Views
         private readonly Texture2D _texture;
         private readonly Vector2 _bodyTextureCenter;
         private const float _scale = 10;
+        private bool _isBulletDestroyed;
 
         public BulletView(IBullet bullet, Texture2D texture)
         {
@@ -20,15 +21,25 @@ namespace GameProject.Entities.Views
             if (texture == null)
                 throw new ArgumentNullException("texture");
             _bullet = bullet;
-            _bullet.Destroyed += BulletOnDisposed;
+            _bullet.Destroyed += BulletOnDestroyed;
             _texture = texture;
             _bodyTextureCenter = new Vector2(_texture.Width, _texture.Height) / 2;
         }
 
-        private void BulletOnDisposed(object entity)
+        private void BulletOnDestroyed(object entity)
         {
-            if (entity == _bullet)
-                Destroy();
+            if (entity != _bullet)
+                return;
+            _isBulletDestroyed = true;
+            //todo: change animation state from Flight to Explosion
+            Destroy();
+        }
+
+        protected override void OnUpdate(float deltaTime)
+        {
+            //todo: Update animation
+            //if current state is Explosion,
+            //count down time to self-destroy and destroy self if it wasted
         }
 
         protected override void OnRender(IImmutableSpriteBatch spriteBatch, ref Rectangle boundingRectangle)
@@ -44,7 +55,7 @@ namespace GameProject.Entities.Views
 
         protected override void OnDestroy()
         {
-            _bullet.Destroyed -= BulletOnDisposed;
+            _bullet.Destroyed -= BulletOnDestroyed;
         }
     }
 }

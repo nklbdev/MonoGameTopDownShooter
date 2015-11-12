@@ -11,16 +11,19 @@ namespace GameProject.Entities.Models.Bullets
         private readonly Body _body;
         private readonly ITank _ownerTank;
         private readonly World _world;
+        private readonly float _damage;
 
-        public SimpleBullet(World world, Vector2 position, float rotation, ITank ownerTank)
+        public SimpleBullet(World world, Vector2 position, float rotation, ITank ownerTank, float damage)
         {
             _world = world;
             _ownerTank = ownerTank;
+            _damage = damage;
             _body = new Body(_world, position, rotation, BodyType.Dynamic)
             {
                 FixedRotation = true,
                 IsBullet = true,
-                IsSensor = true
+                IsSensor = true,
+                UserData = this
             };
             FixtureFactory.AttachCircle(0.1f, 1, _body, Vector2.Zero);
             _body.LinearVelocity = Rotation.ToVector() * 50;
@@ -29,16 +32,18 @@ namespace GameProject.Entities.Models.Bullets
 
         private bool BodyOnCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
         {
-            var userDataA = fixtureA.Body.UserData;
-            var userDataB = fixtureB.Body.UserData;
-
-            if (userDataA == _ownerTank || userDataB == _ownerTank)
+            object other;
+            if (fixtureA.Body == _body)
+                other = fixtureB.Body.UserData;
+            else if (fixtureB.Body == _body)
+                other = fixtureA.Body.UserData;
+            else
                 return false;
 
-            if (userDataA is IEntity)
-                (userDataA as IEntity).Destroy();
-            if (userDataB is IEntity)
-                (userDataB as IEntity).Destroy();
+            if (other == _ownerTank)
+                return false;
+
+            if (other is ITank) (other as ITank).TakeDamage(_damage);
 
             Destroy();
             return true;
@@ -53,10 +58,6 @@ namespace GameProject.Entities.Models.Bullets
         public float Rotation
         {
             get { return _body.Rotation; }
-        }
-
-        protected override void OnUpdate(float deltaTime)
-        {
         }
 
         protected override void OnDestroy()

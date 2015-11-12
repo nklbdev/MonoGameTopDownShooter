@@ -6,8 +6,7 @@ namespace GameProject.Entities.Models.Tanks
     {
         MovingDirection MovingDirection { get; set; }
         RotatingDirection RotatingDirection { get; set; }
-        //ITankBody Body { get; }
         ITankTower Tower { get; }
-        ITankArmor Armor { get; }
+        void TakeDamage(float damage);
     }
 }
