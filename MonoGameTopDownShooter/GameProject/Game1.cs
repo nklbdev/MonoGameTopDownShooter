@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.Mime;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -110,6 +111,16 @@ namespace GameProject
                     case "Enemy":
                         enemyTankSpawner.Spawn(position, rotation);
                         break;
+                }
+            }
+
+            foreach (var mapObject in map.ObjectLayers["triggers"].MapObjects)
+            {
+                if (mapObject.Type == "VictoryPoint")
+                {
+                    var body = new Body(_world, Vector2.Zero) { IsSensor = true };
+                    FixtureFactory.AttachPolygon(new Vertices(mapObject.Polygon.Points.Select(p => new Vector2(p.X/10f, p.Y/10f))), 1, body);
+                    body.OnCollision += (a, b, contact) => { Exit(); return false; };
                 }
             }
         }
