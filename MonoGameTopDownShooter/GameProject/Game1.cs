@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Net.Mime;
+﻿using System;
+using System.Linq;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -23,7 +23,7 @@ namespace GameProject
     {
         //private readonly GraphicsDeviceManager _graphics;
         //private SpriteBatch _spriteBatch;
-        private IGameState _gameState;
+        private IScreen _screen;
         private World _world;
 
         public Game1()
@@ -66,7 +66,7 @@ namespace GameProject
             var hudViewCamera = new Camera(hudSpriteBatch);
             var updateStepMultiplexer = new UpdationMultiplexer { Updateables = { controllersUpdater, modelsUpdater, physicsUpdater, } };
             var drawMultiplexer = new DrawingMultiplexer { Drawables = { worldViewCamera, hudViewCamera } };
-            _gameState = new GameStateAdapter { UpdateStepUpdateable = updateStepMultiplexer, DrawStepUpdateable = viewsUpdater, Drawable = drawMultiplexer };
+            _screen = new GameStateAdapter { UpdateStepUpdateable = updateStepMultiplexer, DrawStepUpdateable = viewsUpdater, Drawable = drawMultiplexer };
 
             var map = Content.Load<Map>("01");
             //добавить мапу как вьюху
@@ -149,7 +149,7 @@ namespace GameProject
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            _gameState.Update(gameTime);
+            _screen.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -160,7 +160,7 @@ namespace GameProject
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            _gameState.Draw(gameTime);
+            _screen.Draw(gameTime);
             base.Draw(gameTime);
         }
     }

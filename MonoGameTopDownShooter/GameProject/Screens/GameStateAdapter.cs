@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameProject.Infrastructure
 {
-    public class GameStateAdapter : IGameState
+    public class GameStateAdapter : IScreen
     {
         public IUpdateable UpdateStepUpdateable { get; set; }
         public IUpdateable DrawStepUpdateable { get; set; }

@@ -38,9 +38,18 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Domain\MatchType.cs" />
     <Compile Include="Factories\BulletModelFactory.cs" />
     <Compile Include="Factories\ITankTowerFactory.cs" />
     <Compile Include="Factories\TankTowerFactory.cs" />
+    <Compile Include="Screens\KeyMappingScreen.cs" />
+    <Compile Include="Screens\MainMenuScreen.cs" />
+    <Compile Include="Screens\MatchDescriptionScreen.cs" />
+    <Compile Include="Screens\MatchesScreen.cs" />
+    <Compile Include="Screens\MatchTypesScreen.cs" />
+    <Compile Include="Screens\SettingsScreen.cs" />
+    <Compile Include="Screens\SplashScreen.cs" />
+    <Compile Include="Screens\TournamentsScreen.cs" />
     <Compile Include="Spawners\BulletSpawner.cs" />
     <Compile Include="Factories\BulletViewFactory.cs" />
     <Compile Include="Infrastructure\Camera.cs" />
@@ -57,7 +66,7 @@
     <Compile Include="Entities\EntityDestroyedEventHandler.cs" />
     <Compile Include="Infrastructure\EntityProcessor.cs" />
     <Compile Include="Infrastructure\EntityUpdater.cs" />
-    <Compile Include="Infrastructure\GameStateAdapter.cs" />
+    <Compile Include="Screens\GameStateAdapter.cs" />
     <Compile Include="Entities\Controllers\IController.cs" />
     <Compile Include="Factories\IBulletModelFactory.cs" />
     <Compile Include="Spawners\IBulletSpawner.cs" />
@@ -65,7 +74,7 @@
     <Compile Include="Infrastructure\IDestructable.cs" />
     <Compile Include="Infrastructure\IDrawable.cs" />
     <Compile Include="Infrastructure\IEntityCollector.cs" />
-    <Compile Include="IGameState.cs" />
+    <Compile Include="Screens\IScreen.cs" />
     <Compile Include="Entities\Models\IModel.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Infrastructure\IProcessor.cs" />
@@ -115,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <Content Include="Screens\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
